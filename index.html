@@ -1,0 +1,1193 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Комната программиста</title>
+<style>
+:root{--bg:#101827;--panel:#19263a;--panel2:#22334c;--ink:#eef5ff;--muted:#a7b7ce;--blue:#69a7ff;--green:#5bd69a;--orange:#ffbd69;--red:#ff7777}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#101827,#172b40);color:var(--ink);font:15px system-ui,Segoe UI,sans-serif}header{padding:16px 22px;background:#111d2e;border-bottom:1px solid #30445d;display:flex;justify-content:space-between;gap:10px;align-items:center}h1{font-size:21px;margin:0}main{max-width:1100px;margin:22px auto;padding:0 16px}.card{background:var(--panel);border:1px solid #30445d;border-radius:16px;padding:20px;box-shadow:0 12px 30px #0002;margin-bottom:16px}.hidden{display:none!important}.muted{color:var(--muted)}button{background:var(--blue);color:#102039;border:0;border-radius:10px;padding:10px 15px;font:inherit;font-weight:700;cursor:pointer}button.secondary{background:#30445d;color:var(--ink)}button:disabled{opacity:.4;cursor:not-allowed}input{font:inherit;padding:11px;border-radius:9px;border:1px solid #405773;background:#101b2b;color:white;width:100%}label{display:block;margin:14px 0 6px;font-weight:650}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.level{background:var(--panel2);padding:16px;border:1px solid #405773;border-radius:13px;display:flex;flex-direction:column;gap:9px}.level h3{margin:0}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}.stat{background:#101b2b;border-radius:11px;padding:10px;color:var(--muted);font-size:13px}.stat b{display:block;color:var(--ink);font-size:20px;margin-top:4px}.bar{height:9px;background:#34465e;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--green);width:0}.layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.8fr);gap:16px}.quest{padding:13px;border:1px solid #405773;background:var(--panel2);border-radius:12px;margin:9px 0}.quest.done{opacity:.5}.quest button{margin-top:8px}.meter{margin:12px 0}.meterhead{display:flex;justify-content:space-between}.meter .bar i{background:var(--orange)}.modal{position:fixed;inset:0;background:#07101dcc;display:flex;align-items:center;justify-content:center;padding:18px;z-index:5}.modal .card{width:min(520px,100%)}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:9px;border-bottom:1px solid #34465e}.good{color:var(--green)}.warn{color:var(--orange)}#game3d{height:480px;position:relative;border-radius:13px;overflow:hidden;background:#24384f}#game3d canvas{display:block;width:100%;height:100%;cursor:crosshair} .game-hint{position:absolute;left:12px;bottom:12px;background:#101827d9;border:1px solid #60758e;border-radius:10px;padding:9px 12px;font-size:13px;pointer-events:none;max-width:calc(100% - 24px)}.crosshair{position:absolute;left:50%;top:50%;width:8px;height:8px;border:1px solid white;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;text-shadow:0 1px 3px #000}.terminal-panel{position:absolute;right:12px;top:12px;width:min(310px,calc(100% - 24px));background:#071321ee;border:1px solid #5bd69a;border-radius:12px;padding:14px;z-index:2;box-shadow:0 10px 35px #0008}.terminal-panel h3{margin:0 0 8px;color:#5bd69a}.terminal-panel p{font-size:13px;color:#d4e5f6}.terminal-panel button{margin:4px 4px 0 0}.interact-hint{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#101827dd;padding:8px 12px;border-radius:8px;pointer-events:none;white-space:nowrap}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}@media(max-width:720px){.ide-backdrop{top:2%;height:72%;width:98%}.ide-top{padding:6px 8px}.ide-title{font-size:12px}.editor-toolbar{padding:5px;gap:4px}.editor-toolbar button{padding:5px;font-size:10px}.lang{font-size:9px}.ide-bottom{padding:5px 8px}.ide-status{font-size:10px}.layout{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}#game3d{height:360px}}
+
+.ide-backdrop{position:absolute;left:50%;top:3%;transform:translateX(-50%);width:min(760px,94%);height:65%;z-index:4;display:flex;align-items:stretch;justify-content:center;padding:0;background:transparent;pointer-events:none}
+.ide{pointer-events:auto;width:100%;height:100%;background:#071018;border:1px solid #294252;border-radius:12px;box-shadow:0 24px 80px #000b;display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
+.ide-top{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#0c1821;border-bottom:1px solid #243744}
+.ide-dot{width:10px;height:10px;border-radius:50%;background:#e26d6d;box-shadow:16px 0 #e6b85c,32px 0 #5bd69a;margin-right:26px}
+.ide-title{font-weight:800;letter-spacing:.2px}.ide-path{color:#71899b;font-size:12px;margin-left:auto}
+.ide-body{min-height:0;display:grid;grid-template-columns:145px minmax(0,1fr) 190px}
+.ide-files{background:#09131b;border-right:1px solid #243744;padding:12px;overflow:auto}
+.ide-files h4,.ide-console h4{margin:0 0 9px;font-size:12px;color:#6f8798;text-transform:uppercase;letter-spacing:.08em}
+.ide-task{padding:9px;border-radius:7px;color:#cbd8e2;cursor:pointer;margin-bottom:5px;font-size:13px}
+.ide-task:hover,.ide-task.active{background:#102a38;color:#fff}.ide-task.done{color:#5bd69a}.task-diff-select{margin:7px 0 0;padding:6px 8px;border:1px solid #8ba5b8;border-radius:7px;background:#f4f8fb;color:#1b3447;font-weight:700;max-width:150px}
+.editor-wrap{min-width:0;display:grid;grid-template-rows:auto 1fr}
+.editor-toolbar{padding:8px;background:#0a151e;border-bottom:1px solid #243744;display:flex;gap:7px;align-items:center}
+.editor-toolbar button{padding:7px 10px;font-size:12px}
+.lang{color:#708a9b;font-size:12px;margin-left:auto}
+.editor-code{position:relative;min-height:0;background:#071017;overflow:hidden}
+#lineNums{position:absolute;z-index:3;left:0;top:0;bottom:0;width:42px;padding:12px 8px;text-align:right;color:#3f5664;background:#08131b;border-right:1px solid #1c303b;font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;overflow:hidden;white-space:pre}
+#codeEditor{position:absolute;z-index:2;inset:0 0 0 43px;width:calc(100% - 43px);height:100%;resize:none;border:0;border-radius:0;background:transparent;color:transparent;-webkit-text-fill-color:transparent;caret-color:#eef5ff;outline:0;padding:12px 14px;font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}
+
+#highlightCode{position:absolute;z-index:1;inset:0 0 0 43px;margin:0;padding:12px 14px;overflow:hidden;pointer-events:none;white-space:pre;font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;color:#d8e7ef;tab-size:4}
+#codeEditor::selection{background:#426b8c88}
+.tok-keyword{color:#c792ea}.tok-string{color:#c3e88d}.tok-number{color:#f78c6c}.tok-comment{color:#637b89;font-style:italic}
+.suggest-box{position:absolute;z-index:5;right:8px;top:8px;max-width:190px;flex-direction:column;gap:3px;padding:5px;background:#132433;border:1px solid #42627a;border-radius:8px;box-shadow:0 8px 20px #0009}
+.suggest-box button{font:11px ui-monospace,monospace;text-align:left;padding:5px 8px;background:#1d3a50;color:#d9efff}
+.ide-task small{float:right;color:#6f8798;font-size:9px}
+.ide-console{border-left:1px solid #243744;background:#08131b;padding:12px;overflow:auto}
+.console-box{background:#050b10;border:1px solid #1c303b;border-radius:7px;padding:10px;min-height:100px;font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;color:#9fb4c2;white-space:pre-wrap}
+.console-good{color:#5bd69a}.console-bad{color:#ff7777}.console-info{color:#69a7ff}
+.ide-bottom{display:flex;gap:8px;align-items:center;padding:9px 12px;background:#0c1821;border-top:1px solid #243744}
+.ide-status{font-size:12px;color:#6f8798;margin-right:auto}
+#game3d{height:560px;background:#05090d}
+@media(max-width:900px){.ide-backdrop{top:3%;height:70%;width:96%}.ide-body{grid-template-columns:112px minmax(0,1fr)}.ide-console{display:none}.ide-files{padding:7px}.ide-task{font-size:11px;padding:7px}.ide-path{display:none}}
+
+html,body{width:100%;height:100%;overflow:hidden;background:#070b12}body{margin:0;color:#eef5ff;font-family:system-ui,Segoe UI,sans-serif}#shell{width:100%;height:100%;margin:0;padding:0;max-width:none}.menu-screen{height:100%;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;background:radial-gradient(ellipse at 50% 42%,#1a3c52 0%,#101c2b 42%,#070b12 78%);position:relative;overflow:auto}.menu-logo{width:72px;height:72px;border:1px solid #54d7e8;border-radius:20px;display:grid;place-items:center;font-size:42px;color:#66e3f0;box-shadow:0 0 42px #28b9d955;margin-bottom:22px}.menu-kicker{letter-spacing:.28em;font-size:11px;color:#67dce8;font-weight:800}.menu-screen h1{font-size:clamp(38px,7vw,76px);line-height:.98;letter-spacing:.06em;margin:12px 0}.menu-screen h1 span{color:#69d7e8}.menu-sub{color:#9eb2c5;margin:10px 0 28px}.menu-name-label{font-size:12px;color:#9eb2c5;align-self:center;margin:0 0 6px}.menu-screen input{width:min(340px,85vw);background:#0d1927;border:1px solid #36546a;border-radius:10px;padding:13px;color:#fff;text-align:center}.menu-primary{margin-top:18px;width:min(340px,85vw);padding:16px 20px;border-radius:11px;background:linear-gradient(100deg,#38b9d0,#67e0e6);color:#07151d;font-weight:900;letter-spacing:.12em;box-shadow:0 10px 36px #25bdd344}.menu-primary span{float:right}.menu-foot{position:absolute;bottom:22px;color:#647d91;font-size:12px}.difficulty-list{display:grid;gap:12px;width:min(440px,90vw)}.difficulty{display:flex;flex-direction:column;text-align:left;gap:5px;padding:17px 20px;background:#102235;border:1px solid #36546a;color:#f1f8ff;border-radius:12px}.difficulty b{font-size:18px;letter-spacing:.08em}.difficulty small{color:#9eb2c5;font-size:12px}.difficulty.easy{border-left:4px solid #55d6a2}.difficulty.medium{border-left:4px solid #64baff}.difficulty.hard{border-left:4px solid #ff8c70}.menu-back{margin-top:22px;background:transparent;color:#a8bed0}.result-stars{font-size:30px;color:#ffd66b}#game{position:fixed;inset:0;background:#05090d}#game3d{position:absolute;inset:0;width:100%;height:100%;border-radius:0}#game3d canvas{width:100%;height:100%;display:block}.room-menu-button{display:none!important;position:absolute;top:16px;right:16px;z-index:3;background:#071321cc;color:#d7edf6;border:1px solid #547184;border-radius:8px;padding:9px 13px;font-size:12px}.game-hint{opacity:.82}.terminal-panel{max-height:75vh;overflow:auto}.hidden{display:none!important}
+.menu-screen.entering{animation:menuReveal .72s cubic-bezier(.2,.8,.2,1) both}
+.menu-screen.entering>*{animation:menuItemReveal .65s both;animation-delay:calc(var(--i,0)*85ms)}
+#mainMenu.entering .menu-logo{--i:0}#mainMenu.entering .menu-kicker{--i:1}#mainMenu.entering h1{--i:2}#mainMenu.entering .menu-sub{--i:3}#mainMenu.entering .menu-name-label{--i:4}#mainMenu.entering input{--i:5}#mainMenu.entering .menu-primary{--i:6}
+#difficultyScreen.entering .menu-kicker{--i:0}#difficultyScreen.entering h1{--i:1}#difficultyScreen.entering .menu-sub{--i:2}#difficultyScreen.entering .difficulty-list{--i:3}#difficultyScreen.entering .menu-back{--i:4}
+@keyframes menuReveal{from{opacity:0;filter:blur(9px);transform:scale(1.035)}to{opacity:1;filter:blur(0);transform:scale(1)}}
+@keyframes menuItemReveal{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+#game.cinematic-in{animation:roomReveal .7s ease-out both}
+@keyframes roomReveal{from{opacity:0;filter:brightness(.35)}to{opacity:1;filter:brightness(1)}}
+.cinematic-vignette{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,#02060c99 100%);opacity:0;animation:vignetteFade 2.2s ease-out both}
+@keyframes vignetteFade{0%{opacity:1}65%{opacity:.55}100%{opacity:0}}
+
+.terminal-panel.pc-window{left:50%;right:auto;top:50%;transform:translate(-50%,-50%);width:min(760px,94%);height:min(460px,78%);max-height:78%;padding:0;overflow:hidden;background:#10151f;border:1px solid #72849a;border-radius:10px;display:flex;flex-direction:column}
+.pc-titlebar{height:34px;flex:0 0 34px;display:flex;align-items:center;padding:0 12px;background:#202b3c;border-bottom:1px solid #42536a;font-size:12px;font-weight:800}
+.pc-titlebar button{margin-left:auto;padding:3px 9px;background:#3b4c62;color:white}
+.pc-desktop{flex:1;min-height:0;padding:16px;background:radial-gradient(ellipse at 40% 35%,#263b50,#111c2a 72%);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-content:start;overflow:auto}
+.pc-app{min-height:92px;border:1px solid #60758a;border-radius:9px;background:#d8e0e6;color:#101b29;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-weight:800}
+.pc-app .emoji{font-size:28px}.pc-app small{font-size:10px;color:#34485b}
+.pc-window-body{flex:1;min-height:0;max-height:calc(100% - 68px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable;padding:16px;background:#e5e9ed;color:#172331}.pc-window-body::-webkit-scrollbar{width:10px}.pc-window-body::-webkit-scrollbar-track{background:#cbd3dc;border-radius:8px}.pc-window-body::-webkit-scrollbar-thumb{background:#718399;border:2px solid #cbd3dc;border-radius:8px}.pc-window-body{scrollbar-width:thin;scrollbar-color:#718399 #cbd3dc}
+.pc-window-body h3{margin:0 0 12px;color:#172331}
+.pc-window-body .mail-content{color:#172331;background:#fff;padding:18px;border:1px solid #c7d0da;border-radius:10px;font-size:15px;line-height:1.65;min-height:150px}
+.pc-window-body .mail-content h3{color:#102235;font-size:21px;margin:12px 0}
+.pc-window-body .mail-content p{color:#24384a;font-size:15px;line-height:1.65;white-space:pre-wrap}
+.pc-window-body .mail-meta{color:#526579!important;font-size:13px!important}
+/* ИСПРАВЛЕНО: читаемый серый текст внутри светлых окон ПК и мини-игр */
+.pc-window-body .muted{color:#526579!important}
+.mail-minigame .muted{color:#475569!important}
+
+.pc-food-item{display:flex;align-items:center;gap:10px;padding:10px;margin:8px 0;background:#fff;border:1px solid #c3ccd5;border-radius:9px;color:#1c2b39}
+.pc-food-item .food-icon{font-size:27px}.pc-food-item .food-info{flex:1}.pc-food-item small{display:block;color:#667788}
+.pc-food-item button,.pc-window-body button{padding:8px 12px;font-size:12px}
+.pc-apartment-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}.pc-apartment-actions button{min-height:42px;white-space:normal}@media(max-width:600px){.pc-apartment-actions{grid-template-columns:1fr}}
+.pc-status{padding:8px 12px;background:#1a2635;color:#c5d5e4;font-size:11px;display:flex;justify-content:space-between}
+@media(max-width:600px){.terminal-panel.pc-window{width:96%;height:78%;top:50%}.pc-desktop{grid-template-columns:repeat(3,minmax(0,1fr));padding:9px;gap:8px}.pc-app{min-height:76px}.pc-app .emoji{font-size:23px}.pc-window-body{padding:10px}}
+
+#neighborEvent{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(4,10,18,.72);backdrop-filter:blur(5px);padding:18px}
+#neighborEvent.hidden{display:none}
+#neighborEvent .neighbor-card{width:min(460px,94vw);background:linear-gradient(145deg,#172b3b,#0b1723);border:1px solid #5b91ad;border-radius:18px;padding:22px;color:#edf7ff;box-shadow:0 24px 80px #000a;animation:neighborPop .28s ease-out}
+#neighborEvent h2{margin:0 0 9px;font-size:21px}
+#neighborEvent p{color:#b8cad8;line-height:1.5}
+#neighborEvent .neighbor-choices{display:grid;gap:9px;margin-top:16px}
+#neighborEvent button{border:0;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer;background:#2784b8;color:#fff}
+#neighborEvent button.secondary{background:#344958;color:#e2edf5}
+#neighborEvent button:hover{filter:brightness(1.12)}
+#neighborEvent .neighbor-reward{color:#7be0a4;font-weight:800}
+@keyframes neighborPop{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+
+#doorToast{position:fixed;top:18px;left:50%;transform:translate(-50%,-18px);z-index:100010;opacity:0;pointer-events:none;width:min(420px,calc(100vw - 28px));background:linear-gradient(120deg,#18364a,#102130);border:1px solid #79b9dc;border-radius:14px;padding:12px 16px;color:#eff9ff;box-shadow:0 12px 36px #0008;display:flex;align-items:center;gap:12px;transition:opacity .25s,transform .25s;cursor:pointer}
+#doorToast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#doorToast .door-toast-icon{font-size:25px;animation:doorBell .7s ease-in-out 3}
+#doorToast b{display:block;font-size:14px}
+#doorToast small{display:block;color:#b7d2e3;margin-top:2px}
+@keyframes doorBell{0%,100%{transform:rotate(0)}20%{transform:rotate(-12deg)}40%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(8deg)}}
+
+#apartmentPanel{display:none!important;position:fixed;right:18px;top:18px;z-index:20;width:min(310px,calc(100vw - 36px));padding:13px;border:1px solid #6c91a8;border-radius:14px;background:rgba(9,20,31,.94);color:#edf7ff;box-shadow:0 12px 34px #0008;font-size:12px;backdrop-filter:blur(8px)}
+.apartment-head{display:grid;gap:4px;margin-bottom:9px}.apartment-head span,#rentNotice{color:#a9c0d0}
+.apartment-stats{display:flex;justify-content:space-between;gap:8px;margin:8px 0}
+.apartment-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.apartment-actions button{font-size:11px;padding:8px 6px;border-radius:8px;background:#246b91;color:white;border:1px solid #4a94b9;cursor:pointer}
+.apartment-actions .owner-action{background:#72512b;border-color:#b48a4c}
+#rentNotice{display:block;margin-top:8px;line-height:1.35}
+@media(max-width:650px){#apartmentPanel{top:8px;right:8px;width:220px;padding:9px}.apartment-actions button{font-size:10px;padding:6px 4px}.apartment-stats{display:grid;gap:3px}}
+
+#needsHud{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:15;width:min(360px,calc(100vw - 28px));padding:12px 15px;border:1px solid #6c91a8;border-radius:13px;background:rgba(7,18,29,.92);color:#edf7ff;box-shadow:0 8px 26px #0008;backdrop-filter:blur(8px);pointer-events:none}
+.need-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;margin:2px 0 5px}.need-track{height:8px;background:#26394b;border-radius:99px;overflow:hidden;margin-bottom:9px}.need-track:last-child{margin-bottom:0}.need-track i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#55d6a2,#ffb45e);transition:width .2s}.need-track i.high{background:linear-gradient(90deg,#ffb45e,#ff5d68)}
+@media(max-width:650px){#needsHud{bottom:10px;width:min(300px,calc(100vw - 20px));padding:9px 12px}}
+
+.mail-minigame{color:#20364a}.mail-minigame h3{color:#152b3e}.mouse-test-arena{height:290px;position:relative;border:2px dashed #91a8bd;border-radius:12px;background:repeating-linear-gradient(0deg,#edf3f8,#edf3f8 24px,#e4edf5 25px);overflow:hidden;margin:14px 0}.test-count{display:block;font-weight:750;color:#20364a;margin:8px 0}.mouse-target{position:absolute;width:38px;height:38px;min-width:38px;padding:0;border:4px solid #fff;border-radius:50%;background:#e65b55;box-shadow:0 2px 9px #26384b77;cursor:crosshair}.mouse-target:after{content:"";position:absolute;inset:8px;border:2px solid #fff;border-radius:50%}.keyboard-sequence{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;padding:22px 8px;background:#e9f0f6;border-radius:12px;margin:16px 0}.keycap{display:inline-flex;align-items:center;justify-content:center;width:48px;height:52px;border:1px solid #9aabba;border-bottom-width:5px;border-radius:8px;background:#fff;color:#24384a;font-weight:800;font-size:19px}.keycap.current{background:#d8edff;border-color:#2685c8;box-shadow:0 0 0 3px #2685c833}.keycap.passed{background:#d8f5e4;border-color:#3b9b68;color:#17633c}.mail-game-feedback{min-height:24px;font-weight:700;color:#246344}
+
+#dayClockHud{position:fixed;right:18px;bottom:18px;z-index:16;width:min(250px,calc(100vw - 36px));padding:12px 14px;border:1px solid #6c91a8;border-radius:14px;background:rgba(7,18,29,.94);color:#edf7ff;box-shadow:0 10px 28px #0008;backdrop-filter:blur(8px);font-size:12px}
+.day-clock-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.day-clock-icon{font-size:23px}
+.day-clock-row b{display:block;font-size:20px;line-height:1.1}
+.day-clock-row small{display:block;color:#a9c0d0;margin-top:2px}
+.day-clock-progress{height:8px;background:#26394b;border-radius:99px;overflow:hidden;margin-bottom:10px}
+.day-clock-progress i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#55d6a2,#ffb45e);transition:width .35s}
+#sleepToNextDay{width:100%;padding:10px 12px;border-radius:9px;background:#246b91;color:#fff;border:1px solid #4a94b9;font-weight:800;cursor:pointer;white-space:normal;line-height:1.3}
+#sleepToNextDay:hover:not(:disabled){filter:brightness(1.12)}
+#sleepToNextDay:disabled{opacity:.45;cursor:not-allowed;background:#30445d;border-color:#405773}
+@media(max-width:650px){#dayClockHud{right:8px;bottom:10px;width:210px;padding:9px 11px}.day-clock-row b{font-size:17px}}
+</style></head><body>
+<main id="shell">
+<section id="mainMenu" class="menu-screen">
+ <div class="menu-logo">⌘</div><p class="menu-kicker">IMMERSIVE DEVELOPER SIMULATOR</p><h1>КОМНАТА<br><span>ПРОГРАММИСТА</span></h1>
+ <p class="menu-sub">Твоя комната. Твой код. Твои правила.</p>
+ <label class="menu-name-label" for="player">Имя игрока</label><input id="player" maxlength="30" placeholder="CodeNinja">
+ <button class="menu-primary" id="newGame">НОВАЯ ИГРА <span>➜</span></button>
+ <div class="menu-foot">WASD — движение · мышь — обзор · E — взаимодействие · Ctrl — освободить мышь</div>
+</section>
+<section id="difficultyScreen" class="menu-screen hidden">
+ <p class="menu-kicker">НОВОЕ ПРИКЛЮЧЕНИЕ</p><h1>ВЫБЕРИ<br><span>СЛОЖНОСТЬ</span></h1><p class="menu-sub">От неё зависят награды и нагрузка от задач.</p>
+ <div class="difficulty-list">
+  <button class="difficulty easy" onclick="beginGame('easy')"><b>ЛЁГКИЙ</b><small>Больше времени · меньше усталости · награды чуть выше</small></button>
+  <button class="difficulty medium" onclick="beginGame('medium')"><b>СРЕДНИЙ</b><small>Сбалансированный игровой опыт</small></button>
+  <button class="difficulty hard" onclick="beginGame('hard')"><b>СЛОЖНЫЙ</b><small>Высокая нагрузка · серьёзный вызов · крупные награды</small></button>
+ </div><button class="menu-back" onclick="show('mainMenu')">← Назад в меню</button>
+</section>
+<section id="game" class="hidden"><div id="game3d"></div>
+ <div class="hidden"><h2 id="levelTitle"></h2><span id="boss"></span><p id="description"></p><b id="goal"></b><b id="day"></b><b id="cash"></b><b id="earned"></b><span id="fatigueText"></span><span id="hungerText"></span><i id="fatigueBar"></i><i id="hungerBar"></i><div id="quests"></div><input id="save" type="range"><b id="saveVal"></b><b id="spendVal"></b><b id="remain"></b><button id="rest"></button><button id="food"></button><button id="finishDay"></button></div>
+ <aside id="apartmentPanel" class="apartment-panel">
+  <div class="apartment-head"><b>🏠 МОЯ КВАРТИРА</b><span id="apartmentName">Комната программиста</span></div>
+  <div class="apartment-stats"><span>Аренда: <b id="rentPrice">500 ₽</b></span><span>Пропуски: <b id="missedRent">0 / 3</b></span></div>
+  <div class="apartment-actions">
+   <button onclick="payRent()">Оплатить аренду</button>
+   <button onclick="upgradeApartment()">Улучшить квартиру</button>
+   <button onclick="buyApartment()">Купить новую</button>
+  </div>
+  <small id="rentNotice">Оплата списывается в конце каждого дня.</small>
+ </aside>
+ <aside id="needsHud" aria-label="Показатели игрока">
+  <div class="need-row"><span>😴 Усталость</span><b id="hudFatigueValue">12%</b></div>
+  <div class="need-track"><i id="hudFatigueBar"></i></div>
+  <div class="need-row"><span>🍔 Голод</span><b id="hudHungerValue">12%</b></div>
+  <div class="need-track"><i id="hudHungerBar"></i></div>
+ </aside>
+ <aside id="dayClockHud" aria-label="Время дня">
+  <div class="day-clock-row">
+    <span class="day-clock-icon">🕒</span>
+    <div>
+      <b id="dayClockTime">07:00</b>
+      <small id="dayClockPhase">Раннее утро</small>
+    </div>
+  </div>
+  <div class="day-clock-progress">
+    <i id="dayClockBar"></i>
+  </div>
+  <button id="sleepToNextDay" type="button">🌙 Закончить день (после 24:00)</button>
+ </aside>
+ <button class="room-menu-button" onclick="returnToMenu()">Ⅱ МЕНЮ</button>
+</section>
+<section id="result" class="menu-screen hidden"><p class="menu-kicker">СЕССИЯ ЗАВЕРШЕНА</p><h1 id="resultTitle">ИГРА ОКОНЧЕНА</h1><p class="menu-sub">Баланс: <b id="resultCash"></b> · Задач: <b id="resultQuests"></b></p><p id="stars" class="result-stars"></p><b id="resultEarned" class="hidden"></b><button id="again" class="hidden">Ещё раз</button><button class="menu-primary" onclick="returnToMenu()">В ГЛАВНОЕ МЕНЮ</button></section>
+</main>
+<div id="taskModal" class="modal hidden"><div class="card"><h2 id="taskTitle"></h2><p id="taskDesc" class="muted"></p><p>Награда: <b id="taskReward" class="good"></b></p><p class="muted" id="taskCost"></p><div class="actions"><button id="completeTask">Выполнить задание</button><button class="secondary" onclick="closeTask()">Отмена</button></div></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script><div id="doorToast" role="button" tabindex="0"><span class="door-toast-icon">🔔</span><span><b>Кто-то стучит в дверь!</b><small>Нажми, чтобы ответить соседу</small></span></div><div id="neighborEvent" class="hidden" aria-live="polite"></div>
+<script>
+const $=id=>document.getElementById(id), money=n=>Math.round(n).toLocaleString('ru-RU')+' ₽';let player='',levels=[],L=null,G=null,chosen=null,scene3d=null;
+async function api(url,opts){let r=await fetch(url,opts);return r.json()}
+function show(id){['mainMenu','difficultyScreen','game','result'].forEach(x=>{const el=$(x),active=x===id;el.classList.toggle('hidden',!active);el.classList.remove('entering','cinematic-in');if(active){void el.offsetWidth;el.classList.add(x==='game'?'cinematic-in':'entering')}})}
+$('newGame').onclick=()=>{player=$('player').value.trim()||'Игрок';localStorage.setItem('programmer_name',player);show('difficultyScreen')};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let difficulty='medium';let editorTaskMode='medium';
+async function beginGame(mode){difficulty=mode;player=$('player').value.trim()||localStorage.getItem('programmer_name')||'Игрок';localStorage.setItem('programmer_name',player);
+levels=[{id: 1, title: "Твой первый день", boss: "Алексей", description: "Выполняй задачи, чтобы заработать на аренду.", goal: 5000, quests: [{ title: "Сложить два числа", desc: "Напиши функцию sumNumbers", reward: 1000, fatigue: 10, hunger: 5 }, { title: "Найти большее число", desc: "Напиши функцию max_value", reward: 1200, fatigue: 12, hunger: 6 }, { title: "Посчитать ошибки", desc: "Напиши функцию countErrors", reward: 1500, fatigue: 15, hunger: 8 }]}]; L=levels.find(x=>x.id===1);
+const cfg={easy:{reward:1.2,load:.72,days:9,label:'Лёгкий'},medium:{reward:1,load:1,days:7,label:'Средний'},hard:{reward:1.5,load:1.35,days:6,label:'Сложный'}}[mode];L={...L,days:cfg.days,quests:L.quests.map(q=>({...q,reward:Math.round(q.reward*cfg.reward),fatigue:Math.min(100,Math.round(q.fatigue*cfg.load)),hunger:Math.min(100,Math.round(q.hunger*cfg.load))}))};startLevel(1)}
+function returnToMenu(){if(scene3d){scene3d.cleanup?scene3d.cleanup():scene3d.renderer.dispose();scene3d=null}if($('ideBackdrop'))$('ideBackdrop').style.display='none';show('mainMenu')}
+function startLevel(id){if(!L||L.id!==id)L=levels.find(x=>x.id===id);if(player)localStorage.removeItem('programmer_mail_'+player);G={day:1,cash:0,earned:0,saved:0,spent:0,fatigue:12,hunger:12,done:[],taskModes:{},mailTasks:[],mailTaskModes:{},ownedGear:[],dailyEarned:0,rent:500,missedRent:0,apartment:0,upgrade:0,rentPaidForDay:false};$('levelTitle').textContent=L.title;$('boss').textContent='👔 Твой босс: '+L.boss;$('description').textContent=L.description;$('goal').textContent=money(L.goal);show('game');updateApartmentUI();$('rentNotice').textContent='Оплата списывается автоматически в конце дня.';build3D();render();resetDayClock()}
+function build3D(){
+ let host=$('game3d');host.innerHTML='<div class="cinematic-vignette"></div>'; 
+ if(!window.THREE){host.textContent='Для 3D-сцены нужен интернет, чтобы загрузить Three.js.';return}
+ const T=THREE, scene=new T.Scene();scene.background=new T.Color(0x263746);scene.fog=new T.Fog(0x263746,18,34);
+ const ROOM_SCALE=.75;
+ const camera=new T.PerspectiveCamera(72,host.clientWidth/host.clientHeight,.1,100);
+ camera.position.set(0,3.85,7.45*ROOM_SCALE);camera.rotation.order='YXZ';camera.rotation.set(-.34,0,0,'YXZ');
+ const intro={start:performance.now(),duration:2200,from:new T.Vector3(0,3.85,7.45*ROOM_SCALE),to:new T.Vector3(0,1.62,5.35*ROOM_SCALE),fromPitch:-.34,toPitch:0};
+ const renderer=new T.WebGLRenderer({antialias:false,powerPreference:'high-performance',stencil:false,depth:true});renderer.setSize(host.clientWidth,host.clientHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));renderer.shadowMap.enabled=false;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;host.appendChild(renderer.domElement);
+ scene.add(new T.HemisphereLight(0xd8edff,0x59616a,.88));
+ const ambientFill=new T.AmbientLight(0xffffff,.32);scene.add(ambientFill);
+ const keyLight=new T.DirectionalLight(0xffedda,1.05);keyLight.position.set(-4,7,4);keyLight.castShadow=false;scene.add(keyLight);
+ const warm=new T.PointLight(0xffbd78,1.45,10);warm.position.set(-1,2.5,-3.5);warm.castShadow=false;scene.add(warm);
+ const cyan=new T.PointLight(0x55d5ff,1.35,12);cyan.position.set(1.2,2.1,-3.3);scene.add(cyan);
+ const materials={wall:new T.MeshStandardMaterial({color:0x56616a,roughness:.86}),floor:new T.MeshStandardMaterial({color:0x343d44,roughness:.72,metalness:.12}),wood:new T.MeshStandardMaterial({color:0x4a2d1f,roughness:.66}),darkwood:new T.MeshStandardMaterial({color:0x171b1f,roughness:.75}),metal:new T.MeshStandardMaterial({color:0x26343e,roughness:.38,metalness:.7}),screen:new T.MeshStandardMaterial({color:0x071b25,emissive:0x073f55,emissiveIntensity:1.5,roughness:.25}),blue:new T.MeshStandardMaterial({color:0x176b91,roughness:.5,metalness:.25}),fabric:new T.MeshStandardMaterial({color:0x202d39,roughness:.95}),white:new T.MeshStandardMaterial({color:0x9da8ae,roughness:.7})};
+ const colliders=[], interactables=[];
+ function box(name,w,h,d,mat,x,y,z,opts={}){w*=ROOM_SCALE;d*=ROOM_SCALE;x*=ROOM_SCALE;z*=ROOM_SCALE;let m=new T.Mesh(new T.BoxGeometry(w,h,d),typeof mat==='string'?(materials[mat]||new T.MeshStandardMaterial({color:mat})):mat);m.name=name;m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);if(opts.solid)colliders.push({x,z,w,d});if(opts.interact)interactables.push({mesh:m,label:opts.label||name,action:opts.action});return m}
+ box('floor',16,.2,14,'floor',0,-.12,0);
+ box('back wall',16,5,.2,'wall',0,2.4,-7);
+ box('left wall',.2,5,14,'wall',-8,2.4,0);
+ box('right wall',.2,5,14,'wall',8,2.4,0);
+ box('ceiling',16,.2,14,0x0d1318,0,5,0);
+ box('front wall left',13.6,4.8,.2,'wall',-1.2,2.4,6.82,{solid:true});
+ box('front wall right',.4,4.8,.2,'wall',7.8,2.4,6.82,{solid:true});
+ box('wall above doorway',2.2,1.9,.22,'wall',6.65,3.85,6.82,{solid:true});
+ box('corridor floor',5.2,.2,8,'floor',6.65,-.12,10.8);
+ box('corridor left wall',.2,3.6,8,'wall',4,1.7,10.8,{solid:true});
+ box('corridor right wall',.2,3.6,8,'wall',9.3,1.7,10.8,{solid:true});
+ box('corridor end wall',5.2,3.6,.2,'wall',6.65,1.7,14.8,{solid:true});
+ box('corridor ceiling',5.2,.16,8,0x17232d,6.65,3.55,10.8);
+ box('corridor light',.08,.05,4.8,0x55d5ff,4.1,3.1,10.8);
+ for(let x=-6;x<=6;x+=2)box('floor seam',.035,.012,13,0x26323a,x,-.005,0);
+ for(let z=-6;z<=6;z+=2)box('floor seam',15,.012,.035,0x26323a,0,-.004,z);
+ for(let x=-6;x<=6;x+=2.4)box('wall panel',2.15,3.9,.025,0x171f26,x,2.25,-6.84);
+ box('window frame',3,2.1,.16,'white',-5,2.8,-6.83);
+ box('window glass',2.7,1.8,.06,0x081c2a,-5,2.8,-6.72);
+ box('window sill',3.2,.12,.28,'wood',-5,1.72,-6.65);
+ for(let i=0;i<14;i++){let wx=-6.15+(i%7)*.36,wz=-6.68;let wh=.12+(i%4)*.12;box('city light',.08,wh,.018,i%3?0x1fb8d7:0xffb15a,wx,2.05+(i%4)*.22,wz);}
+ const windowGlow=new T.PointLight(0x1d9dce,.8,5);windowGlow.position.set(-5,2.8,-5.8);scene.add(windowGlow);
+ box('desk top',3.5,.16,1.35,'wood',0,1.08,-3.7,{solid:true,interact:true,label:'Рабочий стол',action:'desk'});
+ for(let x of [-1.5,1.5])for(let z of [-4.15,-3.25])box('desk leg',.12,1.05,.12,'darkwood',x,.52,z);
+ box('monitor base',.55,.08,.35,'metal',0,1.22,-3.55);
+ box('monitor stand',.12,.36,.12,'metal',0,1.42,-3.55);
+ box('монитор',1.65,1.02,.13,'metal',0,1.94,-3.55,{interact:true,label:'Компьютер',action:'computer'});
+ box('экран',1.48,.82,.035,'screen',0,1.95,-3.475);
+ box('monitor webcam',.12,.06,.05,'metal',0,2.47,-3.49);
+ const monitorGlow=new T.PointLight(0x16b9e9,.8,4);monitorGlow.position.set(0,1.95,-3.1);scene.add(monitorGlow);
+ for(let i=0;i<5;i++)box('code line',.45+(i%3)*.12,.025,.012,i%2?'#5bd69a':'#69a7ff',-.25+(i%2)*.1,2.15-i*.11,-3.451);
+ box('monitor power light',.06,.025,.018,0x5bd69a,.58,1.52,-3.45);
+ box('keyboard',.9,.06,.3,'metal',-.32,1.19,-3.28);
+ box('mouse',.16,.07,.2,'metal',.62,1.195,-3.28);
+ box('pc tower',.55,.95,.7,'darkwood',1.18,.58,-3.48,{solid:true});
+ box('pc glass',.42,.6,.018,0x0b2631,1.18,.63,-3.84);
+ for(let y=.38;y<.85;y+=.13)box('pc led',.28,.025,.02,y<.6?0x24c7ff:0x5bd69a,1.18,y,-3.86);
+ for(let i=0;i<5;i++)box('desk led',.04,.02,2.7,i%2?0x22aee0:0x5bd69a,-1.55+i*.75,1.165,-3.7);
+ box('chair seat',.9,.18,.85,'fabric',0,.72,-1.95,{solid:true,interact:true,label:'Кресло',action:'chair'});
+ box('chair back',.85,1,.16,'fabric',0,1.25,-1.48);
+ box('chair post',.12,.55,.12,'metal',0,.38,-1.95);
+ box('chair base',.8,.08,.8,'metal',0,.08,-1.95);
+ box('bed frame',2.5,.38,3,'wood',-5,.25,-1,{solid:true});
+ box('mattress',2.35,.22,2.8,'white',-5,.54,-1,{interact:true,label:'Поспать и восстановить силы',action:'bed'});
+ box('pillow',.85,.2,.55,'white',-5,.7,-2.05);
+ box('blanket',2.3,.12,1.4,'blue',-5,.68,-.15);
+ box('bookshelf',1.5,2.5,.5,'wood',5.35,1.25,-6.48,{solid:true,interact:true,label:'Книжная полка',action:'books'});
+ for(let y of [.55,1.25,1.95])box('shelf',1.42,.07,.55,'darkwood',5.35,y,-6.18);
+ const bookCols=[0xb95858,0x4b8d7c,0xd7b35b,0x6887c2,0x9a6bc0];
+ for(let row=0;row<3;row++)for(let i=0;i<5;i++)box('book',.16,.42,.28,bookCols[(row+i)%bookCols.length],4.83+i*.24,.8+row*.7,-6.14);
+ box('мини-холодильник',.9,1.7,.85,'white',6.65,.85,-6.12,{solid:true,interact:true,label:'Холодильник',action:'food'});
+ box('fridge door panel',.78,1.56,.025,0xdce5ec,6.65,.86,-5.675);
+ box('fridge freezer seam',.79,.035,.035,'metal',6.65,.48,-5.69);
+ box('fridge handle',.045,.42,.055,'metal',6.29,.91,-5.71);
+ box('fridge status light',.035,.035,.025,0x5bd69a,6.93,1.52,-5.71);
+ const lampMat=new T.MeshStandardMaterial({color:0xffd16b,emissive:0x9b5b12,emissiveIntensity:.35,roughness:.52,side:T.DoubleSide});
+ const lampMetal=new T.MeshStandardMaterial({color:0x344653,metalness:.78,roughness:.28});
+ box('lamp base',.38,.075,.34,lampMetal,-1.28,1.205,-3.72);
+ const lampStem=new T.Mesh(new T.CylinderGeometry(.035,.05,.43,12),lampMetal);lampStem.position.set(-.96,1.44,-2.79);scene.add(lampStem);
+ const lampJoint=new T.Mesh(new T.SphereGeometry(.075,12,10),lampMetal);lampJoint.position.set(-.96,1.66,-2.79);scene.add(lampJoint);
+ const lampArm=new T.Mesh(new T.CylinderGeometry(.03,.03,.38,12),lampMetal);lampArm.position.set(-.85,1.72,-2.73);lampArm.rotation.z=-.72;lampArm.rotation.x=.28;scene.add(lampArm);
+ const shade=new T.Mesh(new T.CylinderGeometry(.13,.29,.25,20,1,false),lampMat);shade.position.set(-.75,1.76,-2.68);shade.rotation.z=-.28;shade.rotation.x=.18;shade.castShadow=true;scene.add(shade);
+ const lampBulb=new T.Mesh(new T.SphereGeometry(.075,16,12),new T.MeshStandardMaterial({color:0xffffff,emissive:0xffd47a,emissiveIntensity:4.2,roughness:.2}));lampBulb.position.set(-.765,1.62,-2.693);scene.add(lampBulb);
+ const lampLight=new T.PointLight(0xffc66e,1.35,4.2,1.8);lampLight.position.set(-.765,1.58,-2.693);scene.add(lampLight);
+ const lampSpot=new T.SpotLight(0xffd18a,2.6,4.2,Math.PI/5,.55,1.5);lampSpot.position.set(-.765,1.62,-2.693);lampSpot.target.position.set(-.84,1.08,-2.265);scene.add(lampSpot,lampSpot.target);
+ const stripMat=new T.MeshStandardMaterial({color:0x2bb9e9,emissive:0x1d8fb8,emissiveIntensity:2.2});
+ box('neon strip',.04,.04,9.5,stripMat,-7.72,3.85,-1.1);
+ box('neon strip',.04,.04,8.5,0x5bd69a,7.72,3.35,-2.0);
+ const ceilingGlow=new T.PointLight(0x247d9c,.45,9);ceilingGlow.position.set(3,4.2,-1);scene.add(ceilingGlow);
+ box('rug',3,.025,2,0x43576b,0,.005,-.3);
+ box('poster frame',1.3,1.5,.08,'darkwood',3.2,3.1,-6.82);
+ box('poster',1.16,1.36,.03,0x243b56,3.2,3.1,-6.76);
+ box('poster stripe',.8,.06,.02,'blue',3.2,3.3,-6.73);
+ const cross=document.createElement('div');cross.className='crosshair';cross.textContent='';host.appendChild(cross);
+ const hint=document.createElement('div');hint.className='game-hint';hint.innerHTML='Кликните по комнате, чтобы захватить мышь · <b>WASD</b> — ходить · <b>мышь</b> — смотреть · <b>E</b> — взаимодействовать · <b>Shift</b> — бег · <b>Q</b> — встать со стула · <b>Ctrl</b> — освободить мышь';host.appendChild(hint);
+ const interact=document.createElement('div');interact.className='interact-hint';interact.style.display='none';host.appendChild(interact);
+ const terminal=document.createElement('div');terminal.className='terminal-panel';terminal.style.display='none';host.appendChild(terminal);
+ const foodStock=[
+  {id:'sandwich',name:'Сэндвич',icon:'🥪',price:180,hunger:38,desc:'Быстрый перекус'},
+  {id:'pizza',name:'Пицца',icon:'🍕',price:260,hunger:58,desc:'Сытный горячий обед'},
+  {id:'salad',name:'Салат',icon:'🥗',price:150,hunger:30,desc:'Лёгкая и полезная еда'},
+  {id:'coffee',name:'Кофе',icon:'☕',price:90,hunger:8,energy:12,desc:'Немного бодрости'}
+ ];
+ let foodInventory=[];
+ const mailKey='programmer_mail_'+(player||'Игрок');
+ const notesKey='programmer_notes_'+(player||'Игрок');
+ let mailItems=JSON.parse(localStorage.getItem(mailKey)||'null')||[
+  {id:'welcome',from:'WorkHub',subject:'Подработка: тестирование сайта',body:'Небольшая подработка: проверь 5 страниц сайта и отметь найденные ошибки. Оплата — 320 ₽. Предложение доступно сегодня.',kind:'job',minigame:'site',saved:false,read:false},
+  {id:'promo',from:'Магазин техники',subject:'Акция на аксессуары',body:'Только сегодня скидка 15% на клавиатуры, мыши и коврики. Сохрани письмо, чтобы не потерять предложение.',kind:'promo',saved:false,read:false},
+  {id:'mouse-test',from:'ТехноЛаб',subject:'Подработка: проверка игровой мыши',body:'Проведи короткий тест мыши: быстро находи и нажимай появляющиеся цели. Нужно попасть по 15 целям за отведённое время. Оплата — 520 ₽.',kind:'job',minigame:'mouse',reward:520,saved:false,read:false},
+  {id:'keyboard-test',from:'Клавиатурная мастерская',subject:'Подработка: проверка клавиатуры',body:'Проверь клавиатуру в мини-игре: печатай падающие слова без ошибок. Оплата — 560 ₽.',kind:'job',minigame:'keyboard',reward:560,saved:false,read:false}
+ ];
+ const extraMail=[{id:'mouse-test',from:'ТехноЛаб',subject:'Подработка: проверка игровой мыши',body:'Проведи короткий тест мыши: быстро находи и нажимай появляющиеся цели. Нужно попасть по 15 целям за отведённое время. Оплата — 520 ₽.',kind:'job',minigame:'mouse',reward:520,saved:false,read:false},{id:'keyboard-test',from:'Клавиатурная мастерская',subject:'Подработка: проверка клавиатуры',body:'Проверь клавиатуру в мини-игре: печатай падающие слова без ошибок. Оплата — 560 ₽.',kind:'job',minigame:'keyboard',reward:560,saved:false,read:false}];
+ extraMail.forEach(m=>{if(!mailItems.some(x=>x.id===m.id))mailItems.push(m)});
+ localStorage.setItem(mailKey,JSON.stringify(mailItems));
+ let savedNotes=JSON.parse(localStorage.getItem(notesKey)||'null')||[];
+ function persistMail(){localStorage.setItem(mailKey,JSON.stringify(mailItems))}
+ function saveMailToNotes(id){const m=mailItems.find(x=>x.id===id);if(!m)return;if(!savedNotes.some(n=>n.sourceId===id)){savedNotes.push({sourceId:id,title:m.subject,text:m.from+'\n'+m.body});localStorage.setItem(notesKey,JSON.stringify(savedNotes))}m.saved=true;persistMail();showMailMessage(id)}
+ function acceptMailJob(id){const m=mailItems.find(x=>x.id===id);if(!m||m.kind!=='job')return;if(G.mailTasks.some(t=>t.mailId===id)){alert('Это задание уже добавлено в раздел «Задания с почты».');return}G.mailTasks.push({id:'mailtask-'+id,mailId:id,title:m.subject.replace(/^Подработка:\s*/,''),desc:m.body,reward:m.reward||Number((m.body.match(/(\d+)\s*₽/)||[])[1])||350,minigame:m.minigame||null,done:false});m.accepted=true;persistMail();showMailMessage(id)}
+ function showMailMessage(id){const m=mailItems.find(x=>x.id===id);if(!m)return;m.read=true;persistMail();pcShell('✉️ '+m.subject,`<div class="pc-window-body"><div class="mail-content"><p class="mail-meta">От: ${esc(m.from)} · ${m.kind==='job'?'Подработка':'Акция'}</p><h3>${esc(m.subject)}</h3><p>${esc(m.body||'В письме пока нет подробностей.')}</p></div><div class="actions">${m.kind==='job'?`<button id="acceptMailJob" ${m.accepted?'disabled':''}>${m.accepted?'✓ Добавлено в задачи':'📥 Принять задание'}</button>`:''}<button id="saveMailNote">📝 Сохранить в заметки</button><button id="mailBack" class="secondary">← К письмам</button></div><p class="muted" id="mailSavedHint">${m.saved?'Уже сохранено в заметки':''}</p></div>`);const accept=terminal.querySelector('#acceptMailJob');if(accept)accept.onclick=()=>acceptMailJob(id);terminal.querySelector('#saveMailNote').onclick=()=>{saveMailToNotes(id);terminal.querySelector('#mailSavedHint').textContent='✓ Сохранено в заметки'};terminal.querySelector('#mailBack').onclick=showMailApp}
+ function showMailApp(){
+  const unread=mailItems.filter(m=>!m.read).length;
+  const list=mailItems.slice().reverse().map(m=>`<div class="quest" style="background:#fff;color:#172331;border-color:#c5d0da"><b style="color:#172331">${m.kind==='job'?'💼':'🏷️'} ${esc(m.subject)}</b><p style="color:#43566a;font-size:13px;line-height:1.5;margin:6px 0">${esc((m.body||'').slice(0,150))}${(m.body||'').length>150?'…':''}</p><p style="color:#526579;font-size:11px">${esc(m.from)} · ${m.read?'прочитано':'новое'} ${m.saved?'· 📝 сохранено':''} ${m.accepted?'· ✓ принято':''}</p><button data-mail="${m.id}">Открыть письмо</button></div>`).join('');
+  pcShell('Почта',`<div class="pc-window-body"><h3>📨 Входящие · ${unread} непрочитанных</h3>${list||'<p>Писем пока нет.</p>'}<button id="pcBack">← На рабочий стол</button></div>`);
+  terminal.querySelectorAll('[data-mail]').forEach(b=>b.onclick=()=>showMailMessage(b.dataset.mail));wireBack();
+ }
+ function addGearMail(gear){const offers={mouse:{id:'gear-mouse',from:'ТехноЛаб',subject:'Подработка: тестирование игровой мыши',body:'Проверь точность сенсора, прокрутку колеса и удобство боковых кнопок новой мыши. Оплата — 520 ₽.',kind:'job',minigame:'mouse',reward:520,saved:false,read:false},keyboard:{id:'gear-keyboard',from:'Клавиатурная мастерская',subject:'Подработка: настройка механической клавиатуры',body:'Проверь раскладку, сочетания клавиш, отклик и работу всех клавиш новой клавиатуры. Оплата — 560 ₽.',kind:'job',minigame:'keyboard',reward:560,saved:false,read:false}};const offer=offers[gear];if(offer&&!mailItems.some(m=>m.id===offer.id)){mailItems.push(offer);persistMail()}}
+ function generateDailyMailJobs(day) {
+     const jobs = [
+         ['Проверка мобильного приложения','Проверь удобство меню и отправь короткий отзыв. Оплата — 280 ₽.', 'site'],
+         ['Разметка каталога','Разнеси товары по категориям в небольшой таблице. Оплата — 350 ₽.', 'keyboard'],
+         ['Тестирование формы заказа','Проверь форму заказа и опиши один возможный сценарий ошибки. Оплата — 420 ₽.', 'site'],
+         ['Стресс-тест мыши','Кликер высокой интенсивности. Проверка микропереключателей. Оплата — 550 ₽.', 'mouse'],
+         ['Набор технической документации','Быстрый набор кода и спецсимволов. Оплата — 600 ₽.', 'keyboard'],
+         ['Поиск визуальных багов','На сайте нарушена верстка. Найди все 5 ошибок. Оплата — 700 ₽.', 'site']
+     ];
+     return jobs[(day - 1) % jobs.length];
+ }
+ function addDailyMail(){
+  const day=G.day; if(mailItems.some(m=>m.id==='day-'+day))return;
+  const jData = generateDailyMailJobs(day);
+  const promos=[['Скидка на продукты','Сегодня скидка 10% на готовые обеды и напитки в игровом магазине.'],['Акция выходного дня','Специальное предложение: скидка 20% на товары для рабочего места.'],['Бонусная программа','За покупки сегодня начисляется дополнительный игровой бонус 50 ₽.']];
+  const a=promos[(day-1)%promos.length];
+  mailItems.push({id:'day-'+day,from:'Биржа подработок',subject:'Подработка: '+jData[0],body:jData[1],kind:'job',minigame:jData[2],saved:false,read:false});
+  mailItems.push({id:'promo-'+day,from:'Новости и акции',subject:a[0],body:a[1],kind:'promo',saved:false,read:false});persistMail();
+ }
+ let deliveryOrders=[], carriedFood=[], fridgeFood=[], activeCourierOrderId=null;
+ function pickupCourierPackage(){
+  if(!activeCourierOrderId)return;
+  const index=deliveryOrders.findIndex(o=>o.id===activeCourierOrderId);
+  if(index<0){activeCourierOrderId=null;return}
+  carriedFood.push({...deliveryOrders[index]});deliveryOrders.splice(index,1);activeCourierOrderId=null;
+  if(scene3d&&scene3d.finishCourier)scene3d.finishCourier();
+  if(terminal.style.display!=='none')showFoodShop();
+ }
+ const trainingKey='programmer_training_'+(player||'Игрок');
+ let trainingState=(()=>{try{return JSON.parse(localStorage.getItem(trainingKey)||'null')||{xp:0,completed:[]}}catch(e){return {xp:0,completed:[]}}})();
+ if(!Array.isArray(trainingState.completed))trainingState.completed=[];
+ const trainingChallenges=[
+  {id:'bug-sum',title:'Охотник за ошибками',topic:'Основы · поиск ошибок',minXp:0,xp:20,desc:'В функции должна вычисляться сумма двух чисел. Найди строку, из-за которой результат неверный.',code:'function add(a, b) {\n  return a - b;\n}',options:['return a + b;','return a * b;','return b - a;'],correct:0,why:'Оператор + складывает оба значения. Минус выполнял вычитание.'},
+  {id:'if-check',title:'Условие доступа',topic:'Условия · if / else',minXp:20,xp:25,desc:'Доступ разрешён, если возраст пользователя не меньше 18 лет. Какое условие подходит?',code:'if ( ??? ) {\n  return "Доступ разрешён";\n}',options:['age > 18','age >= 18','age < 18'],correct:1,why:'Знак >= включает и 18 лет, и любой больший возраст.'},
+  {id:'loop-count',title:'Счётчик циклов',topic:'Циклы · for',minXp:45,xp:30,desc:'Сколько раз выполнится тело цикла? Счётчик начинается с 0 и увеличивается до значения меньше 4.',code:'for (let i = 0; i < 4; i++) {\n  // действие\n}',options:['3 раза','4 раза','5 раз'],correct:1,why:'Значения i: 0, 1, 2 и 3 — всего четыре итерации.'},
+  {id:'array-filter',title:'Фильтр чётных чисел',topic:'Массивы · filter',minXp:75,xp:30,desc:'Нужно получить новый массив только с чётными числами. Какой вариант верный?',code:'const numbers = [1, 2, 3, 4, 5, 6];\nconst result = numbers.???(n => n % 2 === 0);',options:['map','filter','find'],correct:1,why:'filter оставляет все элементы, прошедшие проверку. find вернул бы только первый найденный элемент.'},
+  {id:'object-find',title:'Поиск пользователя',topic:'Объекты · массив объектов',minXp:105,xp:35,desc:'В массиве users нужно найти первого пользователя с id равным 7. Какой метод лучше использовать?',code:'const user = users.???(item => item.id === 7);',options:['find','filter','map'],correct:0,why:'find возвращает первый подходящий объект или undefined, если совпадения нет.'},
+  {id:'async-order',title:'Асинхронный запрос',topic:'Асинхронность · Promise',minXp:140,xp:35,desc:'Функция fetchData возвращает Promise. Что нужно добавить, чтобы дождаться результата внутри async-функции?',code:'async function load() {\n  const data = ??? fetchData();\n  return data;\n}',options:['await','setTimeout','return await без вызова'],correct:0,why:'await приостанавливает выполнение async-функции до завершения Promise и даёт его результат.'},
+  {id:'algorithm',title:'Выбери эффективный алгоритм',topic:'Алгоритмы · сложность',minXp:175,xp:40,desc:'Массив уже отсортирован. Нужно найти значение. Какой алгоритм обычно быстрее на больших массивах?',code:'Дано: отсортированный массив из 1 000 000 элементов.\nНужно найти одно значение.',options:['Линейный поиск — O(n)','Бинарный поиск — O(log n)','Сравнить каждый элемент дважды — O(n²)'],correct:1,why:'Бинарный поиск делит диапазон пополам на каждом шаге и требует порядка log₂(n) сравнений.'},
+  {id:'security',title:'Защити форму входа',topic:'Безопасность · проверка данных',minXp:215,xp:45,desc:'Приложение собирает SQL-запрос с введённым пользователем логином. Как безопаснее передать значение в запрос?',code:'SELECT * FROM users WHERE login = ?',options:['Склеить SQL строку через +','Использовать параметризованный запрос','Удалить пробелы и оставить склейку'],correct:1,why:'Параметризованные запросы отделяют данные от SQL-кода и помогают предотвратить SQL-инъекции.'},
+  {id:'string-search',title:'Поиск в строке',topic:'Строки · indexOf',minXp:260,xp:40,desc:'Нужно проверить, содержит ли email символ "@". Какой метод вернёт позицию символа или -1?',code:'const email = "user@example.com";\nconst pos = email.???("@");',options:['indexOf','includes','search'],correct:0,why:'indexOf возвращает позицию первого вхождения подстроки или -1, если её нет. includes вернул бы true/false.'},
+  {id:'error-handle',title:'Обработка ошибок',topic:'try / catch',minXp:300,xp:45,desc:'Функция может выбросить ошибку. Как правильно её перехватить и вывести сообщение?',code:'??? {\n  riskyOperation();\n} ??? (err) {\n  console.log(err.message);\n}',options:['try ... catch','if ... else','do ... while'],correct:0,why:'Конструкция try...catch позволяет выполнить код и перехватить любые возникшие ошибки.'},
+  {id:'date-format',title:'Форматирование даты',topic:'Работа с датами',minXp:345,xp:45,desc:'Нужно получить текущий год. Какой метод объекта Date вернёт год (например, 2026)?',code:'const now = new Date();\nconst year = now.???();',options:['getFullYear','getYear','getMonth'],correct:0,why:'getFullYear() возвращает полный год (2026). getYear() устарел и возвращает число лет с 1900.'},
+  {id:'recursion',title:'Рекурсивный факториал',topic:'Рекурсия',minXp:390,xp:50,desc:'Функция вычисляет факториал числа. Что должно быть базовым случаем для n = 0 или n = 1?',code:'function factorial(n) {\n  if (n <= 1) return ???;\n  return n * factorial(n - 1);\n}',options:['1','0','n'],correct:0,why:'Факториал 0 и 1 равен 1. Это базовый случай, который останавливает рекурсию.'},
+  {id:'destructuring',title:'Деструктуризация объекта',topic:'ES6 · деструктуризация',minXp:440,xp:50,desc:'Есть объект user. Как одной строкой извлечь свойства name и age в одноимённые переменные?',code:'const user = { name: "Аня", age: 25 };\n??? = user;',options:['const { name, age }','const [ name, age ]','const name, age'],correct:0,why:'Фигурные скобки {} используются для деструктуризации объектов. Квадратные [] — для массивов.'},
+  {id:'spread',title:'Копирование массива',topic:'ES6 · spread-оператор',minXp:490,xp:50,desc:'Нужно создать копию массива numbers с добавленным элементом 99 в конце. Какой вариант правильный?',code:'const numbers = [1, 2, 3];\nconst extended = [...numbers, ???];',options:['99','...99','[99]'],correct:0,why:'Spread-оператор ... разворачивает массив, и мы добавляем 99 как отдельный элемент в конец.'},
+  {id:'event-listener',title:'Обработка клика',topic:'DOM · события',minXp:540,xp:55,desc:'Нужно добавить обработчик клика на кнопку. Какой метод используется?',code:'const btn = document.querySelector(".btn");\nbtn.???("click", handler);',options:['addEventListener','onClick','attachEvent'],correct:0,why:'addEventListener — стандартный способ подписки на события DOM. onClick — это свойство, а не метод.'},
+  {id:'localstorage',title:'Сохранение данных',topic:'Web API · localStorage',minXp:595,xp:55,desc:'Нужно сохранить объект настроек в localStorage. Какой метод сериализует объект в строку?',code:'const settings = { theme: "dark", lang: "ru" };\nlocalStorage.setItem("settings", ???(settings));',options:['JSON.stringify','JSON.parse','String'],correct:0,why:'localStorage хранит только строки. JSON.stringify превращает объект в JSON-строку для сохранения.'}
+ ];
+ function saveTraining(){localStorage.setItem(trainingKey,JSON.stringify(trainingState))}
+ function trainingRank(xp){if(xp>=595)return 'Младший специалист';if(xp>=440)return 'Стажёр-разработчик';if(xp>=260)return 'Уверенный практикант';if(xp>=105)return 'Начинающий';if(xp>=20)return 'Новичок';return 'Совсем новичок'}
+ function showTrainingHub(){
+  const xp=trainingState.xp||0,done=trainingState.completed.length,next=trainingChallenges.find(c=>!trainingState.completed.includes(c.id)&&c.minXp>xp),available=trainingChallenges.filter(c=>c.minXp<=xp&&!trainingState.completed.includes(c.id));
+  const progress=next?Math.max(0,Math.min(100,((xp-(trainingChallenges.filter(c=>c.minXp<=xp).slice(-1)[0]?.minXp||0))/(next.minXp-(trainingChallenges.filter(c=>c.minXp<=xp).slice(-1)[0]?.minXp||0)))*100)):100;
+  const cards=trainingChallenges.map((c,i)=>{const completed=trainingState.completed.includes(c.id),locked=xp<c.minXp;return `<div class="pc-food-item" style="align-items:flex-start"><span class="food-icon">${completed?'✅':locked?'🔒':['🪲','','🔁','','🔎','','🧠','🛡️','🔤','️','','🔄','','🌊','','💾'][i]}</span><div class="food-info"><b>${i+1}. ${esc(c.title)}</b><small>${esc(c.topic)} · +${c.xp} XP · ${locked?'Откроется при '+c.minXp+' XP':completed?'Пройдено':'Доступно'}</small><small style="display:block;margin-top:4px">${esc(c.desc)}</small></div><button data-training="${c.id}" ${locked||completed?'disabled':''}>${completed?'Готово':locked?'Закрыто':'Начать'}</button></div>`}).join('');
+  pcShell('🎓 Академия программирования',`<div class="pc-window-body"><h3>Прокачка навыков</h3><div class="quest" style="background:#e8f2fb;color:#172331;border-color:#b8cde0"><b>Уровень: ${trainingRank(xp)}</b><p style="margin:6px 0">Опыт: <b>${xp} XP</b> · Пройдено заданий: ${done}/${trainingChallenges.length}</p><div style="height:10px;background:#c7d5e2;border-radius:8px;overflow:hidden"><div style="height:100%;width:${progress}%;background:#238bca;border-radius:8px"></div></div><small style="display:block;margin-top:7px;color:#40566b">${next?'До следующего задания: '+Math.max(0,next.minXp-xp)+' XP':'Все испытания академии открыты и пройдены!'}</small></div><p style="color:#344b60">Выполняй задания по порядку: сначала основы, затем массивы, асинхронность, алгоритмы, безопасность, строки, обработку ошибок, рекурсию и веб-API. За каждое новое испытание начисляется опыт.</p>${cards}<button id="pcBack">← На рабочий стол</button></div>`);
+  terminal.querySelectorAll('[data-training]').forEach(b=>b.onclick=()=>startTrainingChallenge(b.dataset.training));wireBack();
+ }
+ function startTrainingChallenge(id){
+  const c=trainingChallenges.find(x=>x.id===id);if(!c||trainingState.xp<c.minXp||trainingState.completed.includes(id))return;
+  pcShell('🎓 '+c.title,`<div class="pc-window-body"><p class="muted">${esc(c.topic)} · Награда: +${c.xp} XP</p><h3>${esc(c.desc)}</h3><pre style="white-space:pre-wrap;background:#142435;color:#d9efff;padding:14px;border-radius:9px;overflow:auto">${esc(c.code)}</pre><p><b>Выбери правильное решение:</b></p><div id="trainingOptions">${c.options.map((o,i)=>`<button class="training-option" data-answer="${i}" style="display:block;width:100%;text-align:left;margin:8px 0">${String.fromCharCode(65+i)}. ${esc(o)}</button>`).join('')}</div><p id="trainingFeedback" class="muted" aria-live="polite">Выбери один вариант ответа.</p><div class="actions"><button id="trainingBack" class="secondary">← К заданиям</button></div></div>`);
+  terminal.querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>{const feedback=terminal.querySelector('#trainingFeedback');if(+b.dataset.answer===c.correct){if(!trainingState.completed.includes(c.id)){trainingState.completed.push(c.id);trainingState.xp+=c.xp;saveTraining()}feedback.innerHTML='✅ <b>Верно!</b> '+esc(c.why)+'<br>Получено: +'+c.xp+' XP';terminal.querySelectorAll('[data-answer]').forEach(x=>x.disabled=true);const back=terminal.querySelector('#trainingBack');back.textContent='Продолжить';back.onclick=showTrainingHub}else{feedback.textContent='Пока неверно. Подумай ещё раз и попробуй другой вариант.';b.disabled=true}});
+  terminal.querySelector('#trainingBack').onclick=showTrainingHub;
+ }
+ function pcShell(title,body){
+  terminal.classList.add('pc-window');terminal.style.display='block';
+  terminal.innerHTML=`<div class="pc-titlebar">🖥 ${title}<button id="pcClose">✕</button></div>${body}<div class="pc-status"><span>Рабочая станция · ONLINE</span><span>${money(G.cash)} · Голод ${G.hunger}%</span></div>`;
+  terminal.querySelector('#pcClose').onclick=()=>{terminal.style.display='none'};
+ }
+ function showPCDesktop(){
+  pcShell('Рабочий стол',`<div class="pc-desktop">
+   <button class="pc-app" id="pcTasks"><span class="emoji">💻</span>Задачи<small>Dev workspace</small></button>
+   <button class="pc-app" id="pcTraining"><span class="emoji">🎓</span>Академия навыков<small>Мини-игры и обучение</small></button>
+   <button class="pc-app" id="pcFood"><span class="emoji">🍔</span>Доставка еды<small>Заказать и поесть</small></button>
+   <button class="pc-app" id="pcMail"><span class="emoji">✉️</span>Почта<small>Сообщения</small></button>
+   <button class="pc-app" id="pcNotes"><span class="emoji">📝</span>Заметки<small>Блокнот</small></button>
+   <button class="pc-app" id="pcGear"><span class="emoji">🖱️</span>Магазин техники<small>Мыши и клавиатуры</small></button>
+   <button class="pc-app" id="pcApartment"><span class="emoji">🏠</span>Моя квартира<small>Аренда и улучшения</small></button>
+  </div>`);
+  terminal.querySelector('#pcTasks').onclick=showWorkTasks;
+  terminal.querySelector('#pcTraining').onclick=showTrainingHub;
+  terminal.querySelector('#pcFood').onclick=showFoodShop;
+  terminal.querySelector('#pcMail').onclick=showMailApp;
+  terminal.querySelector('#pcNotes').onclick=showNotesApp;
+  terminal.querySelector('#pcGear').onclick=showGearShop;
+  terminal.querySelector('#pcApartment').onclick=showApartmentApp;
+ }
+ function showGearShop(){const items=[{id:'mouse',name:'Игровая мышь',icon:'🖱️',cost:650,desc:'Открывает специальные задания по тестированию мыши.'},{id:'keyboard',name:'Механическая клавиатура',icon:'⌨️',cost:950,desc:'Открывает специальные задания по настройке клавиатуры.'}];pcShell('🛒 Магазин техники',`<div class="pc-window-body"><h3>Обнови рабочее место</h3><p>Баланс: <b>${money(G.cash)}</b></p>${items.map(x=>`<div class="pc-food-item"><span class="food-icon">${x.icon}</span><div class="food-info"><b>${x.name} · ${money(x.cost)}</b><small>${x.desc}</small></div><button data-gear="${x.id}" ${G.ownedGear.includes(x.id)?'disabled':''}>${G.ownedGear.includes(x.id)?'Куплено':'Купить'}</button></div>`).join('')}<button id="pcBack">← На рабочий стол</button></div>`);terminal.querySelectorAll('[data-gear]').forEach(b=>b.onclick=()=>{const x=items.find(i=>i.id===b.dataset.gear);if(G.ownedGear.includes(x.id))return;if(G.cash<x.cost)return alert('Не хватает денег: '+money(x.cost));G.cash-=x.cost;G.spent+=x.cost;G.ownedGear.push(x.id);addGearMail(x.id);render();showGearShop()});wireBack()}
+ function showNotesApp(){
+  const items=savedNotes.map(n=>`<div class="quest"><b>${esc(n.title||'Заметка')}</b><p style="white-space:pre-wrap">${esc(n.text||'')}</p></div>`).join('');
+  pcShell('Заметки',`<div class="pc-window-body"><h3>📝 Мои заметки</h3><textarea id="noteDraft" style="width:100%;height:110px;background:#fff;color:#172331;border:1px solid #9aa8b5;border-radius:8px;padding:10px" placeholder="Запиши идею или план..."></textarea><p><button id="saveDraft">Сохранить заметку</button></p><h4>Сохранённые письма и записи</h4>${items||'<p class="muted">Пока заметок нет.</p>'}<button id="pcBack">← На рабочий стол</button></div>`);
+  terminal.querySelector('#saveDraft').onclick=()=>{const v=terminal.querySelector('#noteDraft').value.trim();if(!v)return;savedNotes.push({title:'Заметка',text:v});localStorage.setItem(notesKey,JSON.stringify(savedNotes));showNotesApp()};wireBack();
+ }
+ function showApartmentApp(){
+  if(!G)return;
+  const names=['Комната программиста','Улучшенная квартира','Новая квартира','Премиум-квартира'];
+  const cost=1200+G.upgrade*800;
+  pcShell('🏠 Управление квартирой',`<div class="pc-window-body">
+   <h3>${names[G.apartment]||'Новая квартира'}</h3>
+   <div class="pc-food-item"><span class="food-icon">💰</span><div class="food-info"><b>Баланс: ${money(G.cash)}</b><small>Аренда: ${money(G.rent)} в день · Пропуски: ${G.missedRent}/3</small></div></div>
+   <p>Уровень улучшений: ${G.upgrade}/3</p>
+   <div class="pc-apartment-actions">
+    <button id="pcPayRent" ${G.rentPaidForDay ? 'disabled' : ''}>${G.rentPaidForDay ? '✅ Аренда оплачена' : '💳 Оплатить аренду'}</button>
+    <button id="pcUpgrade">🛠️ Улучшить квартиру · ${money(cost)}</button>
+    <button id="pcBuyApartment">🏡 Купить новую квартиру</button>
+   </div>
+   <p id="pcApartmentNotice" class="muted">${$('rentNotice')?.textContent||'Оплачивай аренду вовремя, иначе после трёх пропусков будет выселение.'}</p>
+   <button id="pcBack">← На рабочий стол</button>
+  </div>`);
+  terminal.querySelector('#pcPayRent').onclick=()=>{payRent();showApartmentApp()};
+  terminal.querySelector('#pcUpgrade').onclick=()=>{upgradeApartment();showApartmentApp()};
+  terminal.querySelector('#pcBuyApartment').onclick=()=>{buyApartment();showApartmentApp()};
+  wireBack();
+ }
+ function wireBack(){const b=terminal.querySelector('#pcBack');if(b)b.onclick=showPCDesktop}
+ let activeMailGameCleanup=null;
+ function completeMailTask(id){const t=G.mailTasks.find(x=>x.id===id);if(!t||t.done)return;if(t.minigame){launchMailMinigame(id);return}awardMailTask(t)}
+ function awardMailTask(t){if(!t||t.done)return;const id=t.id,mode=G.mailTaskModes[id]||'medium',mult={easy:.8,medium:1,hard:1.45}[mode],load={easy:.7,medium:1,hard:1.35}[mode];t.done=true;const reward=Math.round(t.reward*mult);G.cash+=reward;G.earned+=reward;G.dailyEarned+=reward;G.fatigue=Math.min(100,G.fatigue+Math.round(6*load));G.hunger=Math.min(100,G.hunger+Math.round(4*load));render();showWorkTasks()}
+ function launchMailMinigame(id){
+  const t=G.mailTasks.find(x=>x.id===id);if(!t||t.done)return;
+  if(activeMailGameCleanup){activeMailGameCleanup();activeMailGameCleanup=null}
+  const type = t.minigame || 'mouse';
+  let gameHtml = '';
+  let gameLogicInit = null;
+  if(type === 'mouse') {
+      gameHtml = `
+        <h3>🖱️ Тест точности (Aim Trainer)</h3>
+        <p class="muted">Цели появляются в случайных местах и имеют разный размер. Попади по 15 целям за 25 секунд.</p>
+        <div class="mouse-test-arena" id="mouseTestArena" style="cursor:crosshair">
+            <span class="test-count" id="mouseTestCount" style="position:absolute;top:10px;left:10px;z-index:2;background:rgba(255,255,255,0.8);padding:4px 8px;border-radius:4px">Попадания: 0 / 15 · Время: 25 сек.</span>
+        </div>
+        <p id="mailGameFeedback" class="mail-game-feedback">Нажми "Начать", чтобы запустить таймер.</p>
+        <div class="actions"><button id="mailGameStart">Начать тест</button><button class="secondary" id="mailGameBack">← К заданиям</button></div>
+      `;
+      gameLogicInit = (container, feedback, startBtn, onWin, onLose) => {
+          const arena = container.querySelector('#mouseTestArena');
+          const countDisplay = container.querySelector('#mouseTestCount');
+          let hits = 0, remaining = 25, timer = null, running = false;
+          function spawnTarget() {
+              const size = 20 + Math.random() * 40;
+              const target = document.createElement('div');
+              target.className = 'mouse-target';
+              target.style.width = size + 'px';
+              target.style.height = size + 'px';
+              target.style.left = Math.random() * (arena.clientWidth - size) + 'px';
+              target.style.top = (40 + Math.random() * (arena.clientHeight - size - 40)) + 'px';
+              target.onmousedown = () => {
+                  if(!running) return;
+                  hits++;
+                  target.remove();
+                  countDisplay.textContent = `Попадания: ${hits} / 15 · Время: ${remaining} сек.`;
+                  if(hits >= 15) finish(true);
+                  else spawnTarget();
+              };
+              arena.appendChild(target);
+          }
+          function finish(win) {
+              running = false; clearInterval(timer);
+              if(win) onWin(); else onLose();
+          }
+          startBtn.onclick = () => {
+              if(running) return;
+              running = true; startBtn.disabled = true; startBtn.textContent = 'Тест идет...';
+              spawnTarget();
+              timer = setInterval(() => {
+                  remaining--;
+                  countDisplay.textContent = `Попадания: ${hits} / 15 · Время: ${remaining} сек.`;
+                  if(remaining <= 0) finish(false);
+              }, 1000);
+          };
+          return () => { running = false; clearInterval(timer); arena.innerHTML = '<span class="test-count" id="mouseTestCount"></span>'; };
+      };
+  } else if (type === 'keyboard') {
+      const words = ['function', 'return', 'const', 'let', 'var', 'import', 'export', 'class', 'div', 'span', 'href', 'src', 'style', 'script', 'body', 'head', 'meta', 'link', 'input', 'button'];
+      gameHtml = `
+        <h3>⌨️ Скоропечатание</h3>
+        <p class="muted">Слова падают сверху. Набери слово целиком, чтобы уничтожить его. Не дай словам упасть! Набери 10 слов.</p>
+        <div class="mouse-test-arena" id="typingArena" style="background:#1e293b;overflow:hidden;position:relative">
+             <div id="fallingWordsContainer" style="position:absolute;inset:0"></div>
+             <div style="position:absolute;bottom:10px;left:10px;color:white;font-weight:bold">Счет: <span id="typeScore">0</span>/10</div>
+        </div>
+        <p id="mailGameFeedback" class="mail-game-feedback">Фокус должен быть на окне игры.</p>
+        <div class="actions"><button id="mailGameStart">Начать тест</button><button class="secondary" id="mailGameBack">← К заданиям</button></div>
+      `;
+      gameLogicInit = (container, feedback, startBtn, onWin, onLose) => {
+          const arena = container.querySelector('#fallingWordsContainer');
+          const scoreEl = container.querySelector('#typeScore');
+          let score = 0, running = false, timer = null, spawnTimer = null;
+          let activeWords = [];
+          let currentInput = "";
+          function spawnWord() {
+              const txt = words[Math.floor(Math.random() * words.length)];
+              const el = document.createElement('div');
+              el.style.position = 'absolute';
+              el.style.color = '#5bd69a';
+              el.style.fontFamily = 'monospace';
+              el.style.fontSize = '18px';
+              el.style.fontWeight = 'bold';
+              el.style.left = Math.random() * (arena.clientWidth - 80) + 'px';
+              el.style.top = '-30px';
+              el.textContent = txt;
+              arena.appendChild(el);
+              activeWords.push({ el, text: txt, y: -30, speed: 0.5 + Math.random() * 1.5 });
+          }
+          function update() {
+              if(!running) return;
+              activeWords.forEach(w => {
+                  w.y += w.speed;
+                  w.el.style.top = w.y + 'px';
+                  if(w.y > arena.clientHeight) finish(false);
+              });
+              if(currentInput.length > 0) {
+                  const matchIndex = activeWords.findIndex(w => w.text.startsWith(currentInput));
+                  if(matchIndex !== -1) {
+                      const w = activeWords[matchIndex];
+                      w.el.innerHTML = `<span style="color:#fff">${currentInput}</span>${w.text.substring(currentInput.length)}`;
+                      if(currentInput === w.text) {
+                          w.el.remove();
+                          activeWords.splice(matchIndex, 1);
+                          currentInput = "";
+                          score++;
+                          scoreEl.textContent = score;
+                          if(score >= 10) finish(true);
+                      }
+                  } else {
+                      currentInput = "";
+                  }
+              }
+          }
+          function onKey(e) {
+              if(!running) return;
+              if(e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
+                  currentInput += e.key.toLowerCase();
+              } else if (e.key === 'Backspace') {
+                  currentInput = currentInput.slice(0, -1);
+              }
+          }
+          function finish(win) {
+              running = false; clearInterval(timer); clearInterval(spawnTimer);
+              document.removeEventListener('keydown', onKey);
+              if(win) onWin(); else onLose();
+          }
+          startBtn.onclick = () => {
+              if(running) return;
+              running = true; startBtn.disabled = true; startBtn.textContent = 'Печатай!';
+              document.addEventListener('keydown', onKey);
+              spawnWord();
+              spawnTimer = setInterval(spawnWord, 2000);
+              timer = setInterval(update, 30);
+          };
+          return () => { 
+              running = false; clearInterval(timer); clearInterval(spawnTimer); 
+              document.removeEventListener('keydown', onKey);
+              arena.innerHTML = '';
+          };
+      };
+  } else {
+      gameHtml = `
+        <h3>🌐 Поиск багов (QA)</h3>
+        <p class="muted">Ниже макет сайта. Найди и кликни на 5 ошибок (опечатки, сломанные кнопки, странные цвета).</p>
+        <div class="mouse-test-arena" id="qaArena" style="background:white;padding:20px;position:relative;text-align:left;cursor:default">
+            <div style="border-bottom:2px solid #eee;padding-bottom:10px;margin-bottom:10px;display:flex;justify-content:space-between">
+                <b style="font-size:20px;color:#333">MySuperSite</b>
+                <span style="color:#666">Главная | О нас | <span class="bug-el" data-bug="1" style="color:#aaa;text-decoration:line-through;cursor:pointer">Контакты</span></span>
+            </div>
+            <h2 style="color:#333">Добро пожаловать!</h2>
+            <p>Это лучший сайт в интернете. Мы продаем <span class="bug-el" data-bug="2" style="background:black;color:black;cursor:pointer">секретные товары</span>.</p>
+            <div style="display:flex;gap:10px;margin:20px 0">
+                <div style="flex:1;border:1px solid #ddd;padding:10px">
+                    <h4>Товар 1</h4>
+                    <p>Цена: 100 руб.</p>
+                    <button style="padding:5px 10px;background:#2563eb;color:white;border:none;border-radius:4px">Купить</button>
+                </div>
+                <div style="flex:1;border:1px solid #ddd;padding:10px;transform:rotate(2deg)">
+                    <h4 class="bug-el" data-bug="3" style="cursor:pointer">Товар 2</h4>
+                    <p>Цена: 200 руб.</p>
+                    <button style="padding:5px 10px;background:#2563eb;color:white;border:none;border-radius:4px">Купить</button>
+                </div>
+            </div>
+            <footer style="margin-top:20px;font-size:12px;color:#888">
+                &copy; 2026 MySuperSite. <span class="bug-el" data-bug="4" style="color:red;cursor:pointer">Все права нарушены.</span>
+                <br>
+                <img src="broken-link.jpg" alt="Image" class="bug-el" data-bug="5" style="width:50px;height:50px;border:2px dashed red;cursor:pointer;display:inline-block;text-align:center;line-height:50px;font-size:10px;color:red">
+            </footer>
+            <div id="qaCounter" style="position:absolute;top:10px;right:10px;background:#333;color:white;padding:5px 10px;border-radius:4px">Найдено: 0 / 5</div>
+        </div>
+        <p id="mailGameFeedback" class="mail-game-feedback">Внимательно осмотри страницу.</p>
+        <div class="actions"><button id="mailGameStart">Начать проверку</button><button class="secondary" id="mailGameBack">← К заданиям</button></div>
+      `;
+      gameLogicInit = (container, feedback, startBtn, onWin, onLose) => {
+          const bugs = container.querySelectorAll('.bug-el');
+          const counter = container.querySelector('#qaCounter');
+          let found = 0;
+          let active = false;
+          let timer = null;
+          let timeLeft = 30;
+          bugs.forEach(b => b.style.pointerEvents = 'none');
+          startBtn.onclick = () => {
+              active = true;
+              startBtn.disabled = true; startBtn.textContent = 'Ищи баги!';
+              bugs.forEach(b => b.style.pointerEvents = 'auto');
+              timer = setInterval(() => {
+                  timeLeft--;
+                  counter.textContent = `Найдено: ${found} / 5 · Время: ${timeLeft}`;
+                  if(timeLeft <= 0) finish(false);
+              }, 1000);
+          };
+          bugs.forEach(b => {
+              b.onclick = () => {
+                  if(!active) return;
+                  b.style.border = '2px solid green';
+                  b.style.background = '#d1fae5';
+                  b.style.transform = 'none';
+                  b.style.pointerEvents = 'none';
+                  found++;
+                  counter.textContent = `Найдено: ${found} / 5 · Время: ${timeLeft}`;
+                  if(found >= 5) finish(true);
+              };
+          });
+          function finish(win) {
+              active = false; clearInterval(timer);
+              if(win) onWin(); else onLose();
+          }
+          return () => { active = false; clearInterval(timer); };
+      };
+  }
+  pcShell(type==='mouse'?'🖱️ Тест мыши':type==='keyboard'?'⌨️ Тест клавиатуры':'🌐 QA Тест', `<div class="pc-window-body mail-minigame">${gameHtml}</div>`);
+  const feedback = terminal.querySelector('#mailGameFeedback');
+  const startBtn = terminal.querySelector('#mailGameStart');
+  const backBtn = terminal.querySelector('#mailGameBack');
+  function finishGame(ok) {
+      if(activeMailGameCleanup) activeMailGameCleanup();
+      activeMailGameCleanup = null;
+      if(ok) {
+          feedback.textContent = 'Отлично! Тест пройден, задание выполнено.';
+          awardMailTask(t);
+      } else {
+          feedback.textContent = 'Время вышло или тест провален. Попробуй ещё раз.';
+          startBtn.disabled = false;
+          startBtn.textContent = 'Повторить';
+      }
+  }
+  if(gameLogicInit) {
+      activeMailGameCleanup = gameLogicInit(terminal, feedback, startBtn, () => finishGame(true), () => finishGame(false));
+  }
+  backBtn.onclick = () => {
+      if(activeMailGameCleanup) activeMailGameCleanup();
+      activeMailGameCleanup = null;
+      showWorkTasks();
+  };
+ }
+ function showWorkTasks(){
+  const pending=L.quests.map((q,i)=>({q,i})).filter(x=>!G.done.includes(x.i));
+  const labels={easy:'🟢 Лёгкий',medium:'🟡 Средний',hard:'🔴 Сложный'};
+  pcShell('Рабочие задачи',`<div class="pc-window-body"><h3>💻 Тикеты от руководителя</h3><p style="color:#344b60;background:#d5e1eb;padding:9px;border-radius:8px">Выбери сложность отдельно для каждой задачи. От неё зависят награда и нагрузка.</p>${pending.length?pending.map(x=>{const mode=G.taskModes[x.i]||'medium',exercise=taskFor(x.i);return `<div class="pc-food-item"><span class="food-icon">📋</span><div class="food-info"><b>${x.i+1}. ${esc(exercise.title)}</b><small>${esc(exercise.desc)}</small><select class="task-diff-select" data-task-mode="${x.i}"><option value="easy" ${mode==='easy'?'selected':''}>🟢 Лёгкий</option><option value="medium" ${mode==='medium'?'selected':''}>🟡 Средний</option><option value="hard" ${mode==='hard'?'selected':''}>🔴 Сложный</option></select></div><button data-quest="${x.i}">Открыть</button></div>`}).join(''):'<p>Все задачи выполнены. Отличная работа!</p>'}<button id="pcBack">← На рабочий стол</button></div>`);
+  const mailPending=G.mailTasks.filter(t=>!t.done);const mailSection=document.createElement('section');mailSection.innerHTML=`<h3 style="margin-top:22px">📨 Задания с почты</h3><p style="color:#344b60">Здесь находятся подработки, которые ты принял во входящих письмах.</p>${mailPending.length?mailPending.map(t=>`<div class="pc-food-item"><span class="food-icon">📨</span><div class="food-info"><b>${esc(t.title)}</b><small>${esc(t.desc)} · Награда: ${money(t.reward)}</small><select class="task-diff-select" data-mail-mode="${t.id}"><option value="easy" ${((G.mailTaskModes[t.id]||'medium')==='easy')?'selected':''}>🟢 Лёгкий</option><option value="medium" ${((G.mailTaskModes[t.id]||'medium')==='medium')?'selected':''}>🟡 Средний</option><option value="hard" ${((G.mailTaskModes[t.id]||'medium')==='hard')?'selected':''}>🔴 Сложный</option></select></div><button data-mailtask="${t.id}">Выполнить</button></div>`).join(''):'<p>Пока нет принятых заданий. Открой почту и прими предложение о подработке.</p>'}`;terminal.querySelector('.pc-window-body').insertBefore(mailSection,terminal.querySelector('#pcBack'));
+  terminal.querySelectorAll('[data-mail-mode]').forEach(sel=>sel.onchange=()=>{G.mailTaskModes[sel.dataset.mailMode]=sel.value});terminal.querySelectorAll('[data-mailtask]').forEach(btn=>btn.onclick=()=>completeMailTask(btn.dataset.mailtask));
+  terminal.querySelectorAll('[data-task-mode]').forEach(sel=>sel.onchange=()=>{G.taskModes[+sel.dataset.taskMode]=sel.value});
+  terminal.querySelectorAll('[data-quest]').forEach(b=>b.onclick=()=>{openIDE(+b.dataset.quest)});
+  wireBack();
+ }
+ function showFoodShop(){
+  const orderRows=deliveryOrders.map((o,i)=>`<div class="pc-food-item"><span class="food-icon">${o.icon}</span><div class="food-info"><b>${o.name}</b><small>${o.status==='arrived'?'Курьер у двери — подойди и нажми E':'Курьер в пути'} · заказ №${i+1}</small></div></div>`).join('');
+  pcShell('Доставка еды',`<div class="pc-window-body"><h3>🍽️ Меню доставки</h3><p>Закажи еду на компьютере. Когда курьер приедет, забери пакет у двери, затем положи продукты в холодильник.</p><p>Баланс: <b>${money(G.cash)}</b> · Голод: <b>${G.hunger}%</b></p>
+   ${foodStock.map(f=>`<div class="pc-food-item"><span class="food-icon">${f.icon}</span><div class="food-info"><b>${f.name} · ${money(f.price)}</b><small>${f.desc} · −${f.hunger}% голода${f.energy?` · −${f.energy}% усталости`:''}</small></div><button data-buy="${f.id}">Заказать</button></div>`).join('')}
+   <h3>🛵 Курьерские заказы (${deliveryOrders.length})</h3>${orderRows||'<p>Активных доставок нет.</p>'}
+   <h3>🛍️ У тебя в руках (${carriedFood.length})</h3>${carriedFood.length?carriedFood.map(f=>`<div class="pc-food-item"><span class="food-icon">${f.icon}</span><div class="food-info"><b>${f.name}</b><small>Забрано у курьера · отнеси в холодильник</small></div></div>`).join(''):'<p>Пока ничего нет. Забери доставку у курьера.</p>'}
+   <button id="pcBack">← На рабочий стол</button></div>`);
+  terminal.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{
+   const f=foodStock.find(x=>x.id===b.dataset.buy);if(G.cash<f.price){alert('Не хватает денег на заказ.');return}
+   G.cash-=f.price;G.spent+=f.price;const order={...f,status:'onway',id:Date.now()+Math.random()};
+   deliveryOrders.push(order);render();showFoodShop();
+   setTimeout(()=>{const live=deliveryOrders.find(x=>x.id===order.id);if(live){activeCourierOrderId=order.id;live.status='arrived';if(scene3d&&scene3d.startCourier)scene3d.startCourier();if(terminal.style.display!=='none')showFoodShop();}},10000);
+  });
+  wireBack();
+ }
+ function showFridgeApp(){
+  const carried=carriedFood.length?carriedFood.map((f,i)=>`<div class="pc-food-item"><span class="food-icon">${f.icon}</span><div class="food-info"><b>${f.name}</b><small>Пакет из доставки</small></div><button data-store="${i}">Положить</button></div>`).join(''):'<p>У тебя нет еды в руках. Сначала закажи еду на компьютере и забери её у курьера.</p>';
+  const stored=fridgeFood.length?fridgeFood.map((f,i)=>`<div class="pc-food-item"><span class="food-icon">${f.icon}</span><div class="food-info"><b>${f.name}</b><small>Хранится в холодильнике</small></div><button data-eat="${i}">Съесть</button></div>`).join(''):'<p>Холодильник пока пуст.</p>';
+  pcShell('🧊 Холодильник',`<div class="pc-window-body"><h3>🥡 Положить продукты в холодильник</h3>${carried}<h3>❄️ В холодильнике (${fridgeFood.length})</h3>${stored}<p class="muted">Еду можно съесть только после того, как она окажется в холодильнике.</p><button id="pcBack">← На рабочий стол</button></div>`);
+  terminal.querySelectorAll('[data-store]').forEach(b=>b.onclick=()=>{
+   const f=carriedFood.splice(+b.dataset.store,1)[0];if(f)fridgeFood.push(f);showFridgeApp();
+  });
+  terminal.querySelectorAll('[data-eat]').forEach(b=>b.onclick=()=>{
+   const f=fridgeFood[+b.dataset.eat];if(!f)return;
+   G.hunger=Math.max(0,G.hunger-f.hunger);if(f.energy)G.fatigue=Math.max(0,G.fatigue-f.energy);
+   fridgeFood.splice(+b.dataset.eat,1);render();showFridgeApp();
+  });
+  const fridgeBack=terminal.querySelector('#pcBack');
+  if(fridgeBack)fridgeBack.onclick=()=>{terminal.style.display='none'};
+  const fridgeClose=terminal.querySelector('#pcClose');
+  if(fridgeClose)fridgeClose.onclick=()=>{terminal.style.display='none'};
+ }
+
+ const ideBackdrop=document.createElement('div');ideBackdrop.className='ide-backdrop';ideBackdrop.style.display='none';host.appendChild(ideBackdrop);
+ let sitting=false, doorOpen=false, savedPose=null, activeQuest=-1, editorQuest=-1;
+ const codingTasks=[
+  {lang:'JavaScript',fnName:'sumNumbers',title:'Сложить два числа',desc:'Напиши функцию sumNumbers(a, b), которая возвращает сумму двух переданных чисел. Учти отрицательные значения и ноль.',starter:`function sumNumbers(a, b) {
+  // Верни сумму a и b
+  return a - b;
+}
+`,tests:[['sumNumbers(2, 3)',5],['sumNumbers(-4, 9)',5],['sumNumbers(10, 0)',10]]},
+  {lang:'Python',fnName:'max_value',title:'Найти большее число',desc:'Напиши функцию max_value(a, b), которая возвращает большее из двух чисел. Если числа равны, верни любое из них.',starter:`def max_value(a, b):
+    # Верни большее число
+    return a
+`,tests:[['max_value(8, 3)',8],['max_value(-2, 4)',4],['max_value(7, 7)',7]]},
+  {lang:'JavaScript',fnName:'countErrors',title:'Посчитать ошибки в журнале',desc:'Напиши функцию countErrors(items), которая считает, сколько раз в массиве встречается строка "error". Остальные значения не учитывай.',starter:`function countErrors(items) {
+  // Посчитай элементы со значением "error"
+  return items.length;
+}
+`,tests:[['countErrors(["ok","error","ok","error"])',2],['countErrors(["ok"])',0],['countErrors(["error","error","error"])',3]]},
+  {lang:'Python',fnName:'even_numbers',title:'Отобрать чётные числа',desc:'Напиши функцию even_numbers(items), которая возвращает новый список только из чётных чисел. Исходный список не изменяй.',starter:`def even_numbers(items):
+    # Собери список чётных чисел
+    return items
+`,tests:[['even_numbers([1, 2, 3, 4, 6])',[2,4,6]],['even_numbers([1, 3, 5])',[]],['even_numbers([0, -2, 7])',[0,-2]]]},
+  {lang:'JavaScript',fnName:'reverseText',title:'Развернуть строку',desc:'Напиши функцию reverseText(text), которая возвращает строку в обратном порядке. Например, "код" превращается в "док".',starter:`function reverseText(text) {
+  // Верни строку в обратном порядке
+  return text;
+}
+`,tests:[['reverseText("hello")','olleh'],['reverseText("код")','док'],['reverseText("")','']]},
+  {lang:'Python',fnName:'unique_values',title:'Убрать повторения',desc:'Напиши функцию unique_values(items), которая возвращает список уникальных значений в исходном порядке. Первое вхождение каждого значения нужно сохранить.',starter:`def unique_values(items):
+    # Удали повторы, сохранив порядок
+    return items
+`,tests:[['unique_values([1, 2, 1, 3, 2])',[1,2,3]],['unique_values(["a", "a", "b"])',['a','b']],['unique_values([])',[]]]},
+  {lang:'JavaScript',fnName:'average',title:'Вычислить среднее значение',desc:'Напиши функцию average(numbers), которая возвращает среднее арифметическое элементов массива. Для пустого массива верни 0.',starter:`function average(numbers) {
+  // Вычисли среднее значение
+  return 0;
+}
+`,tests:[['average([2, 4, 6])',4],['average([5])',5],['average([])',0]]},
+  {lang:'Python',fnName:'capitalize_words',title:'Начать слова с заглавной буквы',desc:'Напиши функцию capitalize_words(words), которая возвращает новый список: каждое слово должно начинаться с заглавной буквы, остальные буквы — строчные.',starter:`def capitalize_words(words):
+    # Приведи каждое слово к нужному виду
+    return words
+`,tests:[['capitalize_words(["привет", "МИР"])',['Привет','Мир']],['capitalize_words(["python"])',['Python']],['capitalize_words([])',[]]]},
+  {lang:'JavaScript',fnName:'findUserById',title:'Найти пользователя по ID',desc:'Напиши функцию findUserById(users, id), которая возвращает объект пользователя с указанным id. Если пользователя нет, верни null.',starter:`function findUserById(users, id) {
+  // Найди пользователя по id
+  return null;
+}
+`,tests:[['findUserById([{id:1,name:"Аня"},{id:2,name:"Илья"}], 2)',{'id':2,'name':'Илья'}],['findUserById([{id:1,name:"Аня"}], 3)',null],['findUserById([], 1)',null]]}
+  ];
+
+ function taskFor(i){
+    return codingTasks[i % codingTasks.length];
+  }
+  function closeIDE(){ideBackdrop.style.display='none';}
+ function highlightSource(source,lang){
+   const safe=esc(source);
+   const pattern=lang==='Python'
+     ? /(#[^\n]*|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|\b(?:def|return|if|else|elif|for|in|while|import|from|as|True|False|None|and|or|not|class|pass)\b|\b\d+(?:\.\d+)?\b)/g
+     : /(\/\/[^\n]*|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|\b(?:function|return|const|let|var|if|else|for|while|new|true|false|null|typeof)\b|\b\d+(?:\.\d+)?\b)/g;
+   return safe.replace(pattern,m=>{
+     let cls=/^(\/\/|#)/.test(m)?'tok-comment':/^['"]/.test(m)?'tok-string':/^\d/.test(m)?'tok-number':'tok-keyword';
+     return `<span class="${cls}">${m}</span>`;
+   });
+ }
+ function openIDE(i){
+   editorQuest=i; editorTaskMode=(G.taskModes&&G.taskModes[i])||'medium'; const q=taskFor(i); ideBackdrop.style.display='flex';
+   ideBackdrop.innerHTML=`<div class="ide">
+    <div class="ide-top"><span class="ide-dot"></span><span class="ide-title">DEV STUDIO</span><span class="ide-path">~/projects/level-${L.id}/task-${i+1}.${q.lang==='Python'?'py':'js'}</span></div>
+    <div class="ide-body">
+      <aside class="ide-files"><h4>Задания</h4>${L.quests.map((x,k)=>{const exercise=taskFor(k);return `<div class="ide-task ${k===i?'active ':''}${G.done.includes(k)?'done':''}" data-file="${k}">${G.done.includes(k)?'✓ ':''}${k+1}. ${esc(exercise.title)} <small>${exercise.lang==='Python'?'PY':'JS'}</small></div>`}).join('')}</aside>
+      <section class="editor-wrap">
+        <div class="editor-toolbar"><button id="runCode">▶ Запустить тесты</button><button class="secondary" id="resetCode">Сбросить</button><span class="lang">${q.lang} · подсветка · автодополнение</span></div>
+        <div class="editor-code"><pre id="lineNums">1</pre><pre id="highlightCode" aria-hidden="true"></pre><textarea id="codeEditor" spellcheck="false" autocapitalize="off" autocomplete="off">${esc(q.starter)}</textarea><div id="suggestBox" class="suggest-box" style="display:none"></div></div>
+      </section>
+      <aside class="ide-console"><h4>Тесты</h4><div class="console-box" id="consoleOut">Готово. Исправь код и нажми «Запустить тесты».</div><h4 style="margin-top:16px">Задача · ${q.lang}</h4><p style="font-size:12px;color:#9fb4c2">${esc(q.desc)}</p><p class="muted" style="font-size:11px">Подсказка: Ctrl+Space — варианты автодополнения, Tab — отступ.</p></aside>
+    </div>
+    <div class="ide-bottom"><span class="ide-status" id="ideStatus">Изменения не запущены</span><button class="secondary" id="closeIDE">← К компьютеру</button></div>
+   </div>`;
+   const ta=ideBackdrop.querySelector('#codeEditor'), nums=ideBackdrop.querySelector('#lineNums'), hi=ideBackdrop.querySelector('#highlightCode'), suggest=ideBackdrop.querySelector('#suggestBox');
+   const words=q.lang==='Python'?['def ','return ','len(','range(','print(','if ','else:','for ','in ','True','False']:['function ','return ','const ','let ','console.log(','Array.','map(','filter(','if ','else '];
+   function syncEditor(){nums.textContent=Array.from({length:Math.max(1,ta.value.split('\n').length)},(_,n)=>n+1).join('\n');hi.innerHTML=highlightSource(ta.value,q.lang)+'\n';hi.scrollTop=ta.scrollTop;hi.scrollLeft=ta.scrollLeft}
+   function showSuggestions(){
+     const before=ta.value.slice(0,ta.selectionStart), match=before.match(/[A-Za-z_.$]+$/), prefix=match?match[0]:'';
+     const options=words.filter(w=>!prefix||w.trim().toLowerCase().startsWith(prefix.toLowerCase())).slice(0,6);
+     if(!options.length){suggest.style.display='none';return}
+     suggest.innerHTML=options.map((w,k)=>`<button type="button" data-word="${esc(w)}">${esc(w.trim())}</button>`).join('');
+     suggest.style.display='flex';
+     suggest.querySelectorAll('button').forEach(b=>b.onclick=()=>insertSuggestion(b.dataset.word));
+   }
+   function insertSuggestion(word){const a=ta.selectionStart,b=ta.selectionEnd, before=ta.value.slice(0,a),m=before.match(/[A-Za-z_.$]+$/),start=m?a-m[0].length:a;ta.value=ta.value.slice(0,start)+word+ta.value.slice(b);ta.selectionStart=ta.selectionEnd=start+word.length;ta.focus();suggest.style.display='none';syncEditor()}
+   ta.addEventListener('input',()=>{syncEditor();showSuggestions()});
+   ta.addEventListener('scroll',()=>{nums.scrollTop=ta.scrollTop;hi.scrollTop=ta.scrollTop;hi.scrollLeft=ta.scrollLeft});
+   syncEditor();
+   ta.addEventListener('keydown',e=>{
+     if(e.key==='Tab'){e.preventDefault();const a=ta.selectionStart,b=ta.selectionEnd;ta.value=ta.value.slice(0,a)+'    '+ta.value.slice(b);ta.selectionStart=ta.selectionEnd=a+4;syncEditor()}
+     if((e.ctrlKey||e.metaKey)&&e.code==='Space'){e.preventDefault();showSuggestions()}
+     if(e.key==='Escape')suggest.style.display='none';
+     if(e.key==='Enter'&&suggest.style.display!=='none'){const first=suggest.querySelector('button');if(first){e.preventDefault();insertSuggestion(first.dataset.word)}}
+   });
+   ideBackdrop.querySelectorAll('[data-file]').forEach(el=>el.onclick=()=>openIDE(+el.dataset.file));
+   ideBackdrop.querySelector('#closeIDE').onclick=closeIDE;
+   ideBackdrop.querySelector('#resetCode').onclick=()=>{ta.value=q.starter;syncEditor();suggest.style.display='none';ideBackdrop.querySelector('#consoleOut').textContent='Код восстановлен.'};
+   ideBackdrop.querySelector('#runCode').onclick=async()=>{
+      const out=ideBackdrop.querySelector('#consoleOut'), status=ideBackdrop.querySelector('#ideStatus'), run=ideBackdrop.querySelector('#runCode');
+      run.disabled=true;status.textContent='Выполняются тесты…';
+      try{
+        let passed=0, lines=[];
+        if(q.lang==='Python'){
+          out.textContent='Запускаю Python runtime…';
+          if(!window.loadPyodide){
+            await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js';s.onload=resolve;s.onerror=()=>reject(new Error('Не удалось загрузить Python runtime. Проверь интернет.'));document.head.appendChild(s)});
+          }
+          window.__roomPyodide=window.__roomPyodide||await loadPyodide();
+          const calls=q.tests.map(([expr])=>expr).join(', ');
+          const result=await window.__roomPyodide.runPythonAsync(`${ta.value}\nimport json\njson.dumps([${calls}])`);
+          const got=JSON.parse(String(result));
+          q.tests.forEach(([expr,expected],k)=>{const ok=JSON.stringify(got[k])===JSON.stringify(expected);if(ok)passed++;lines.push((ok?'✓ ':'✗ ')+expr+' → '+JSON.stringify(got[k])+(ok?'':' (ожидалось '+JSON.stringify(expected)+')'))});
+        } else {
+          const fnName=q.fnName;
+          const fn=new Function('"use strict";\n'+ta.value+`\nreturn typeof ${fnName}==='function'?${fnName}:null;`)();
+          if(typeof fn!=='function')throw new Error('Не найдена функция '+fnName+'. Проверь её имя.');
+          for(const [expr,expected] of q.tests){const got=Function('fn',`return fn(${expr.slice(expr.indexOf('(')+1,-1)})`)(fn);if(JSON.stringify(got)===JSON.stringify(expected)){passed++;lines.push('✓ '+expr+' → '+JSON.stringify(got))}else lines.push('✗ '+expr+' → '+JSON.stringify(got)+' (ожидалось '+JSON.stringify(expected)+')')}
+        }
+        out.innerHTML=`<span class="${passed===q.tests.length?'console-good':'console-bad'}">${esc(lines.join('\n'))}</span>`;
+        if(passed===q.tests.length){
+          if(!G.done.includes(i)){
+            const base=L.quests[i]||{};const completedBefore=G.done.length;
+            const taskMultiplier={easy:.8,medium:1,hard:1.45}[editorTaskMode]||1;
+            const load={easy:.7,medium:1,hard:1.35}[editorTaskMode]||1;
+            const progressionMultiplier=1+Math.floor(completedBefore/3)*.12;
+            const reward=Math.round((base.reward||1000)*taskMultiplier*progressionMultiplier);
+            G.cash+=reward;G.earned+=reward;G.dailyEarned+=reward;
+            G.fatigue=Math.min(100,G.fatigue+Math.round((base.fatigue||8)*load));
+            G.hunger=Math.min(100,G.hunger+Math.round((base.hunger||6)*load));G.done.push(i);
+            const nextIndex=L.quests.length;
+            const nextExercise=taskFor(nextIndex);
+            const growth=1+G.done.length*.10;
+            const seed=L.quests[0]||{reward:900,fatigue:14,hunger:10};
+            L.quests.push({title:nextExercise.title+' · уровень '+(G.done.length+1),desc:nextExercise.desc+' Босс повысил планку: выполни задачу без ошибок и подготовься к следующему этапу.',reward:Math.round(seed.reward*growth),fatigue:Math.min(65,Math.round(seed.fatigue*growth)),hunger:Math.min(45,Math.round(seed.hunger*growth))});
+          }
+          status.textContent='✓ Все тесты пройдены · босс открыл новое задание';render();setTimeout(()=>{closeIDE()},650);
+        } else status.textContent=`Пройдено ${passed}/${q.tests.length} тестов`;
+      }catch(err){out.innerHTML='<span class="console-bad">✗ Ошибка: '+esc(err.message)+'</span>';status.textContent='Ошибка выполнения'}
+      finally{run.disabled=false}
+   };
+ }
+ const hands=new T.Group();camera.add(hands);
+ const sleeveMat=new T.MeshStandardMaterial({color:0x344f70,roughness:.82});
+ const skinMat=new T.MeshStandardMaterial({color:0xd49a76,roughness:.78});
+ function capsuleBetween(a,b,r,mat){const A=new T.Vector3(...a),B=new T.Vector3(...b),delta=new T.Vector3().subVectors(B,A);const mesh=new T.Mesh(new T.CylinderGeometry(r,r,delta.length(),12),mat);mesh.position.copy(A).add(B).multiplyScalar(.5);mesh.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),delta.normalize());mesh.castShadow=true;hands.add(mesh);const cap1=new T.Mesh(new T.SphereGeometry(r,12,10),mat);cap1.position.copy(A);hands.add(cap1);const cap2=new T.Mesh(new T.SphereGeometry(r,12,10),mat);cap2.position.copy(B);hands.add(cap2);return mesh}
+ function palm(x,y,z){const p=new T.Mesh(new T.SphereGeometry(.105,18,14),skinMat);p.scale.set(.82,1.12,.62);p.position.set(x,y,z);p.castShadow=true;hands.add(p);for(let i=0;i<4;i++){const f=new T.Mesh(new T.SphereGeometry(.026,12,10),skinMat);f.scale.set(.82,1.9,.82);f.position.set(x-.055+i*.037,y-.115,z-.008);f.castShadow=true;hands.add(f)}const thumb=new T.Mesh(new T.SphereGeometry(.03,12,10),skinMat);thumb.scale.set(.9,1.8,.9);thumb.position.set(x+(x<0?.09:-.09),y-.035,z-.012);thumb.rotation.z=x<0?-.65:.65;hands.add(thumb)}
+ capsuleBetween([-.28,-.43,-.48],[-.39,-.72,-.72],.105,sleeveMat);capsuleBetween([.28,-.43,-.48],[.39,-.72,-.72],.105,sleeveMat);
+ palm(-.39,-.73,-.75);palm(.39,-.73,-.75);hands.visible=true;
+ const doorPivot=new T.Group();doorPivot.position.set(5.65*ROOM_SCALE,0,6.82*ROOM_SCALE);doorPivot.scale.set(ROOM_SCALE,1,ROOM_SCALE);scene.add(doorPivot);
+ const doorMat=new T.MeshStandardMaterial({color:0x765038,roughness:.68});
+ const door=new T.Mesh(new T.BoxGeometry(1.9,2.9,.16),doorMat);door.position.set(.95,1.45,0);door.castShadow=true;door.receiveShadow=true;doorPivot.add(door);
+ const doorPanelMat=new T.MeshStandardMaterial({color:0x523622,roughness:.75});
+ for(const y of [.55,1.55,2.35]){const panel=new T.Mesh(new T.BoxGeometry(1.48,.62,.035),doorPanelMat);panel.position.set(.95,y,.095);doorPivot.add(panel)}
+ const knob=new T.Mesh(new T.SphereGeometry(.075,16,12),materials.metal);knob.position.set(1.68,1.35,.15);doorPivot.add(knob);
+ const hingeMat=materials.metal;for(const y of [.35,1.4,2.55]){const hinge=new T.Mesh(new T.BoxGeometry(.07,.22,.19),hingeMat);hinge.position.set(.06,y,0);doorPivot.add(hinge)}
+ interactables.push({mesh:door,label:'Дверь',action:'door'});
+ const courierGroup=new T.Group();courierGroup.position.set(5.12,0,7.55);courierGroup.visible=false;scene.add(courierGroup);
+ const courierUniform=new T.MeshStandardMaterial({color:0x285b9b,roughness:.82});
+ const courierSkin=new T.MeshStandardMaterial({color:0xc98e6b,roughness:.9});
+ const courierPants=new T.MeshStandardMaterial({color:0x252d38,roughness:.9});
+ const courierBagMat=new T.MeshStandardMaterial({color:0xd89a35,roughness:.8});
+ function courierPart(geo,mat,x,y,z){const m=new T.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;courierGroup.add(m);return m}
+ const courierBody=courierPart(new T.CapsuleGeometry(.22,.66,4,9),courierUniform,0,1.05,0);
+ courierPart(new T.SphereGeometry(.18,16,12),courierSkin,0,1.62,0);
+ courierPart(new T.SphereGeometry(.19,16,10),courierUniform,0,1.77,-.015);
+ const courierArmL=courierPart(new T.CapsuleGeometry(.065,.38,3,7),courierUniform,-.29,1.08,0);
+ const courierArmR=courierPart(new T.CapsuleGeometry(.065,.38,3,7),courierUniform,.29,1.08,0);
+ const courierLegL=courierPart(new T.CapsuleGeometry(.075,.42,3,7),courierPants,-.12,.38,0);
+ const courierLegR=courierPart(new T.CapsuleGeometry(.075,.42,3,7),courierPants,.12,.38,0);
+ const courierPackage=new T.Group();courierPackage.position.set(.42,.92,-.03);courierGroup.add(courierPackage);
+ const packageBox=new T.Mesh(new T.BoxGeometry(.34,.28,.3),courierBagMat);packageBox.castShadow=true;courierPackage.add(packageBox);
+ const packageTop=new T.Mesh(new T.BoxGeometry(.36,.035,.32),new T.MeshStandardMaterial({color:0xf0bd62}));packageTop.position.y=.15;courierPackage.add(packageTop);
+ let courierMoving=false,courierStartZ=7.55,courierTargetZ=5.92,courierProgress=0;
+ const courierHit=new T.Mesh(new T.SphereGeometry(.32,12,10),new T.MeshBasicMaterial({visible:false}));courierHit.position.set(0,1.1,0);courierGroup.add(courierHit);
+ interactables.push({mesh:courierHit,label:'Забрать пакет у курьера',action:'courier'});
+ const neighborGroup=new T.Group();neighborGroup.scale.set(ROOM_SCALE,1,ROOM_SCALE);neighborGroup.position.set(-.395,0,4.01);scene.add(neighborGroup);
+ const neighborSkin=new T.MeshStandardMaterial({color:0xc98f6b,roughness:.82});
+ const neighborJacket=new T.MeshStandardMaterial({color:0x426b83,roughness:.9});
+ const neighborDark=new T.MeshStandardMaterial({color:0x202a32,roughness:.9});
+ function neighborPart(geo,mat,x,y,z){const mesh=new T.Mesh(geo,mat);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;neighborGroup.add(mesh);return mesh}
+ neighborPart(new T.CapsuleGeometry(.24,.72,4,8),neighborJacket,7.18,.86,5.72);
+ neighborPart(new T.SphereGeometry(.19,16,12),neighborSkin,7.18,1.55,5.72);
+ neighborPart(new T.SphereGeometry(.205,16,10),neighborDark,7.18,1.68,5.72);
+ neighborPart(new T.CylinderGeometry(.075,.09,.52,10),neighborDark,7.04,.25,5.72);
+ neighborPart(new T.CylinderGeometry(.075,.09,.52,10),neighborDark,7.32,.25,5.72);
+ neighborPart(new T.CapsuleGeometry(.065,.38,3,7),neighborJacket,6.88,.98,5.72);
+ neighborPart(new T.CapsuleGeometry(.065,.38,3,7),neighborJacket,7.48,.98,5.72);
+ neighborGroup.visible=false;
+ let yaw=0,pitch=0,locked=false;const keys={};const ray=new T.Raycaster();const dir=new T.Vector3();let last=performance.now();
+ function pointerChange(){locked=document.pointerLockElement===renderer.domElement;hint.style.display=locked?'none':'block'}
+ renderer.domElement.addEventListener('click',()=>{if(!locked)renderer.domElement.requestPointerLock?.()});
+ document.addEventListener('pointerlockchange',pointerChange);
+ function mouse(e){if(!locked||performance.now()-intro.start<intro.duration)return;yaw-=e.movementX*.0022;pitch-=e.movementY*.0022;pitch=Math.max(-1.45,Math.min(1.45,pitch));camera.rotation.set(pitch,yaw,0,'YXZ')}
+ document.addEventListener('mousemove',mouse);
+ function keydown(e){
+    if(intro&&performance.now()-intro.start<intro.duration)return;
+    // Освобождение указателя мыши на Ctrl (вместо V)
+    if(e.code==='ControlLeft'||e.code==='ControlRight'){
+        e.preventDefault();
+        document.exitPointerLock?.();
+        return;
+    }
+    if(sitting&&e.code==='KeyQ'){e.preventDefault();standUpFromChair();return}
+    if(sitting&&e.code==='KeyE'){e.preventDefault();useTarget();return}
+    if(['KeyW','KeyA','KeyS','KeyD','KeyE','Space','KeyQ'].includes(e.code)&&locked)e.preventDefault();
+    keys[e.code]=true;
+    if(e.code==='KeyE'&&locked)useTarget()
+ }
+ function keyup(e){keys[e.code]=false}
+ document.addEventListener('keydown',keydown);document.addEventListener('keyup',keyup);
+ function standUpFromChair(){if(!sitting)return;if(savedPose){camera.position.set(savedPose.x,savedPose.y,savedPose.z);yaw=savedPose.yaw;pitch=savedPose.pitch;camera.rotation.set(pitch,yaw,0,'YXZ')}sitting=false;terminal.style.display='none';savedPose=null}
+ function useTarget(){ray.setFromCamera(new T.Vector2(0,0),camera);let hits=ray.intersectObjects(interactables.map(o=>o.mesh),false);if(!hits.length||hits[0].distance>3.2)return;let obj=interactables.find(o=>o.mesh===hits[0].object);if(!obj)return;
+   if(obj.action==='computer'||obj.action==='desk'){
+     showPCDesktop();
+   }
+   else if(obj.action==='door'){doorOpen=!doorOpen;doorPivot.rotation.y=doorOpen?-Math.PI*.48:0;terminal.style.display='none';}
+   else if(obj.action==='chair'){
+     if(!sitting){savedPose={x:camera.position.x,y:camera.position.y,z:camera.position.z,yaw,pitch};sitting=true;camera.position.set(0,1.58,-2.48*ROOM_SCALE);yaw=0;pitch=.02;camera.rotation.set(pitch,yaw,0,'YXZ');terminal.style.display='none';}
+     else {standUpFromChair()}
+   }
+   else if(obj.action==='food'){showFridgeApp()}
+   else if(obj.action==='bed'){
+     if(confirm('Лечь спать? Текущий день закончится, время перескочит на 07:00, а усталость полностью восстановится.')) {
+       const oldDay = G.day;
+       processEndOfDay(true);
+       if(G.day !== oldDay && G.day <= L.days && G.done.length < L.quests.length) {
+         G.fatigue = 0;
+         G.hunger = Math.min(100, G.hunger + 5);
+         render();
+         alert('Вы хорошо выспались. Наступил новый день!');
+       }
+     }
+   }
+   else if(obj.action==='courier'){pickupCourierPackage()}
+   else if(obj.action==='books')alert('Справочник разработчика: изучай задачи босса и следи за усталостью. Деньги и прогресс существуют только внутри игры.');
+ }
+ function blocked(nx,nz){
+   const inRoom=nx>=-5.7&&nx<=5.7&&nz>=-4.8&&nz<=4.8;
+   const inHall=nx>=3.25&&nx<=6.75&&nz>=4.65&&nz<=10.75;
+   if(!inRoom&&!inHall)return true;
+   for(const c of colliders){if(Math.abs(nx-c.x)<c.w/2+.28&&Math.abs(nz-c.z)<c.d/2+.28)return true}
+   return false
+ }
+ function animate(now){if(!scene3d||scene3d.renderer!==renderer)return;let dt=Math.min((now-last)/1000,.05);last=now;advanceDayClock(dt);
+   const introT=Math.min(1,(now-intro.start)/intro.duration),ease=1-Math.pow(1-introT,3);if(introT<1){camera.position.lerpVectors(intro.from,intro.to,ease);pitch=intro.fromPitch+(intro.toPitch-intro.fromPitch)*ease;yaw=0;camera.rotation.set(pitch,yaw,0,'YXZ')}
+   let speed=(keys.ShiftLeft||keys.ShiftRight)?4.8:3.2;let f=(keys.KeyW?1:0)-(keys.KeyS?1:0),s=(keys.KeyD?1:0)-(keys.KeyA?1:0);if((f||s)&&!sitting&&introT>=1){let len=Math.hypot(f,s);f/=len;s/=len;let dx=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*speed*dt,dz=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*speed*dt;let nx=camera.position.x+dx,nz=camera.position.z+dz;if(!blocked(nx,camera.position.z))camera.position.x=nx;if(!blocked(camera.position.x,nz))camera.position.z=nz}
+   ray.setFromCamera(new T.Vector2(0,0),camera);let hits=ray.intersectObjects(interactables.map(o=>o.mesh),false).filter(h=>h.distance<3.2);if(locked&&hits.length){let obj=interactables.find(o=>o.mesh===hits[0].object);interact.style.display='block';interact.textContent='E — '+obj.label}else interact.style.display='none';
+   const moving=!sitting&&(keys.KeyW||keys.KeyA||keys.KeyS||keys.KeyD);
+   const t=now*.008;hands.position.y=moving?Math.sin(t)*.018:0;hands.position.z=0;
+   if(courierGroup.visible){if(courierMoving){courierProgress=Math.min(1,courierProgress+dt*.42);const e=1-Math.pow(1-courierProgress,3);courierGroup.position.z=courierStartZ+(courierTargetZ-courierStartZ)*e;if(courierProgress>=1)courierMoving=false}const bob=courierMoving?Math.sin(now*.012)*.035:0;courierGroup.position.y=bob;courierArmR.rotation.x=courierMoving?Math.sin(now*.012)*.28:-.22;courierArmL.rotation.x=courierMoving?-Math.sin(now*.012)*.28:.12;courierLegL.rotation.x=courierMoving?Math.sin(now*.012)*.42:0;courierLegR.rotation.x=courierMoving?-Math.sin(now*.012)*.42:0;courierPackage.rotation.z=courierMoving?Math.sin(now*.012)*.05:0}
+   renderer.render(scene,camera);requestAnimationFrame(animate)}
+ scene3d={renderer,scene,camera,showNeighbor:(visible)=>{neighborGroup.visible=!!visible;if(visible){doorOpen=true;doorPivot.rotation.y=-Math.PI*.48}else{neighborGroup.visible=false;doorOpen=false;doorPivot.rotation.y=0}},startCourier:()=>{courierArmR.rotation.set(0,0,0);courierArmL.rotation.set(0,0,0);courierPackage.position.set(.42,.92,-.03);courierGroup.visible=true;courierMoving=true;courierProgress=0;courierGroup.position.x=5.12;courierGroup.position.z=courierStartZ;doorOpen=true;doorPivot.rotation.y=Math.PI*.48},finishCourier:()=>{courierGroup.visible=false;courierMoving=false;doorPivot.rotation.y=0;doorOpen=false},knockDoor:()=>{const start=performance.now();const base=doorPivot.rotation.y;const knock=()=>{const t=performance.now()-start;if(t>1050){doorPivot.rotation.y=base;return}doorPivot.rotation.y=base+Math.sin(t*.065)*.018;requestAnimationFrame(knock)};knock()},cleanup:()=>{document.removeEventListener('pointerlockchange',pointerChange);document.removeEventListener('mousemove',mouse);document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);if(document.pointerLockElement===renderer.domElement)document.exitPointerLock();renderer.dispose()}};
+ const resize=()=>{if(!scene3d||scene3d.renderer!==renderer)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight)};
+ window.addEventListener('resize',resize);animate(performance.now());
+}
+function render(){$('day').textContent=G.day+' / '+L.days;$('cash').textContent=money(G.cash);$('earned').textContent=money(G.earned);$('fatigueText').textContent=G.fatigue+'%';$('hungerText').textContent=G.hunger+'%';$('fatigueBar').style.width=G.fatigue+'%';$('hungerBar').style.width=G.hunger+'%';$('fatigueBar').style.background=G.fatigue>70?'var(--red)':'var(--orange)';$('hungerBar').style.background=G.hunger>70?'var(--red)':'var(--orange)';$('hudFatigueValue').textContent=G.fatigue+'%';$('hudHungerValue').textContent=G.hunger+'%';$('hudFatigueBar').style.width=G.fatigue+'%';$('hudHungerBar').style.width=G.hunger+'%';$('hudFatigueBar').classList.toggle('high',G.fatigue>70);$('hudHungerBar').classList.toggle('high',G.hunger>70);$('quests').innerHTML=`<p class="muted">Карьерный прогресс: ${G.done.length} выполнено · сложность и оплата растут по мере продвижения. Новые поручения открываются автоматически.</p>`+L.quests.map((q,i)=>`<div class="quest ${G.done.includes(i)?'done':''}"><b>${G.done.includes(i)?'✓ ':''}${i+1}. ${q.title}</b><p class="muted">${q.desc}</p><div class="muted">Награда: ${money(q.reward)} · Нагрузка: ${q.fatigue}%</div><button ${G.done.includes(i)?'disabled':''} onclick="openIDE(${i})">${G.done.includes(i)?'Выполнено':'Открыть редактор'}</button></div>`).join('');let s=$('save');s.max=G.dailyEarned;s.value=Math.min(+s.value,G.dailyEarned);updateSplit()}
+function openTask(i){if(G.done.includes(i))return;chosen=i;let q=L.quests[i];$('taskTitle').textContent=q.title;$('taskDesc').textContent=q.desc;$('taskReward').textContent=money(q.reward);$('taskCost').textContent='Усталость +'+q.fatigue+' · Голод +'+q.hunger;$('taskModal').classList.remove('hidden')}
+function closeTask(){$('taskModal').classList.add('hidden')}
+$('completeTask').onclick=()=>{openIDE(chosen);closeTask()};
+$('rest').onclick=()=>{if(G.cash<250)return alert('Не хватает денег на отдых.');G.cash-=250;G.spent+=250;G.fatigue=Math.max(0,G.fatigue-45);render()};
+$('food').onclick=()=>{if(G.cash<180)return alert('Не хватает денег на еду.');G.cash-=180;G.spent+=180;G.hunger=Math.max(0,G.hunger-50);render()};
+$('save').oninput=updateSplit;function updateSplit(){let v=+$('save').value;$('saveVal').textContent=money(v);$('spendVal').textContent=money(G.dailyEarned-v);$('remain').textContent='После распределения: '+money(G.cash-v)}
+
+const neighborRepairs=[
+ {name:'Починить Wi‑Fi роутер',story:'У соседа пропал интернет. Он просит проверить, что мешает подключению.',question:'С чего лучше начать диагностику?',answers:['Проверить питание и индикаторы роутера','Сразу переустановить Windows','Разобрать монитор'],correct:0,pay:420},
+ {name:'Починить ноутбук',story:'Ноутбук соседа сильно тормозит и почти не открывает программы.',question:'Какой первый безопасный шаг?',answers:['Удалить все системные файлы','Проверить диспетчер задач и нагрузку','Залить клавиатуру водой'],correct:1,pay:560},
+ {name:'Починить настольную лампу',story:'У соседа перестала включаться настольная лампа.',question:'Что проверить в первую очередь?',answers:['Целостность кабеля и подключение','Поменять обои на рабочем столе','Установить новый браузер'],correct:0,pay:300},
+ {name:'Настроить принтер',story:'Сосед не может распечатать документы — принтер не появляется в системе.',question:'Что логично проверить?',answers:['Очередь печати и подключение принтера','Настройки громкости','Яркость монитора'],correct:0,pay:480}
+];
+
+let activeNeighborJob=null,doorToastTimer=null;
+function closeNeighborEvent(){
+ const el=$('neighborEvent');if(el)el.classList.add('hidden');
+ const toast=$('doorToast');if(toast)toast.classList.remove('show');
+ if(scene3d&&scene3d.showNeighbor)scene3d.showNeighbor(false);
+ activeNeighborJob=null;
+}
+function playDoorbell(){
+ try{
+  const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;
+  const ctx=new Ctx(),now=ctx.currentTime;
+  [0,.22].forEach((offset,i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='sine';osc.frequency.value=i?660:880;gain.gain.setValueAtTime(.0001,now+offset);gain.gain.exponentialRampToValueAtTime(.12,now+offset+.025);gain.gain.exponentialRampToValueAtTime(.0001,now+offset+.42);osc.connect(gain);gain.connect(ctx.destination);osc.start(now+offset);osc.stop(now+offset+.45)});
+  setTimeout(()=>ctx.close(),1000);
+ }catch(e){}
+}
+function openNeighborRequest(){
+ const el=$('neighborEvent');if(!el||!activeNeighborJob)return;
+ $('doorToast').classList.remove('show');
+ el.classList.remove('hidden');
+ el.innerHTML=`<div class="neighbor-card"><div style="font-size:34px">🚪</div><h2>Сосед у двери</h2><p>«Привет! Не мог бы помочь с ремонтом? Я заплачу за работу».</p><div class="neighbor-choices"><button id="neighborAccept">Посмотреть заказ</button><button class="secondary" id="neighborDecline">Извиниться и отказаться</button></div></div>`;
+ $('neighborDecline').onclick=closeNeighborEvent;
+ $('neighborAccept').onclick=()=>showNeighborRepair(activeNeighborJob);
+}
+function maybeNeighborVisit(){
+ if(!G||G.day>L.days||Math.random()>.32)return;
+ activeNeighborJob=neighborRepairs[Math.floor(Math.random()*neighborRepairs.length)];
+ if(scene3d&&scene3d.showNeighbor)scene3d.showNeighbor(true);
+ if(scene3d&&scene3d.knockDoor)scene3d.knockDoor();
+ playDoorbell();
+ const toast=$('doorToast');if(toast){toast.classList.add('show');toast.onclick=openNeighborRequest;toast.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openNeighborRequest()}}}
+ const el=$('neighborEvent');if(el)el.classList.add('hidden');
+ clearTimeout(doorToastTimer);doorToastTimer=setTimeout(()=>{if(toast)toast.classList.remove('show')},9000);
+}
+function showNeighborRepair(job){
+ const el=$('neighborEvent');if(!el)return;
+ el.innerHTML=`<div class="neighbor-card"><div style="font-size:32px">🧰</div><h2>${job.name}</h2><p>${job.story}</p><p><b>${job.question}</b></p><div class="neighbor-choices">${job.answers.map((a,i)=>`<button data-repair-answer="${i}">${a}</button>`).join('')}</div><p class="neighbor-reward">Оплата за работу: ${money(job.pay)}</p><button class="secondary" id="neighborCancel">Отказаться от заказа</button></div>`;
+ el.querySelectorAll('[data-repair-answer]').forEach(btn=>btn.onclick=()=>{
+  const answer=Number(btn.dataset.repairAnswer);
+  if(answer!==job.correct){
+   const card=el.querySelector('.neighbor-card');
+   let note=card.querySelector('.neighbor-note');
+   if(!note){note=document.createElement('p');note.className='neighbor-note';card.insertBefore(note,card.querySelector('.neighbor-reward'))}
+   note.textContent='Не совсем верно. Подумай и попробуй ещё раз.';
+   note.style.color='#ffbd83';return;
+  }
+  G.cash+=job.pay;G.earned+=job.pay;G.dailyEarned+=job.pay;
+  G.fatigue=Math.min(100,G.fatigue+5);G.hunger=Math.min(100,G.hunger+3);
+  el.innerHTML=`<div class="neighbor-card"><div style="font-size:34px">🔧</div><h2>Ремонт выполнен!</h2><p>«Спасибо, теперь всё работает. Держи оплату!»</p><p class="neighbor-reward">+${money(job.pay)}</p><button id="neighborDone">Забрать деньги</button></div>`;
+  $('neighborDone').onclick=()=>{closeNeighborEvent();render()};
+ });
+ $('neighborCancel').onclick=closeNeighborEvent;
+}
+
+function updateApartmentUI(){
+ if(!G)return;
+ $('rentPrice').textContent=money(G.rent);$('missedRent').textContent=G.missedRent+' / 3';
+ $('apartmentName').textContent=['Комната программиста','Улучшенная квартира','Новая квартира','Премиум-квартира'][G.apartment]||'Новая квартира';
+}
+function payRent(){
+ if(!G)return;
+ if(G.rentPaidForDay) {
+   $('rentNotice').textContent='Аренда за сегодня уже оплачена!';
+   return alert('Аренда за сегодня уже оплачена!');
+ }
+ if(G.cash<G.rent){
+   $('rentNotice').textContent='Не хватает денег. Оплати до конца дня.';
+   return alert('Не хватает денег на аренду: '+money(G.rent));
+ }
+ G.cash-=G.rent;
+ G.spent+=G.rent;
+ G.missedRent=0;
+ G.rentPaidForDay=true;
+ $('rentNotice').textContent='Аренда оплачена. Спасибо!';
+ updateApartmentUI();
+ render();
+}
+function upgradeApartment(){
+ if(!G)return;
+ const cost=1200+G.upgrade*800;
+ if(G.upgrade>=3)return alert('Все улучшения этой квартиры уже куплены.');
+ if(G.cash<cost)return alert('Для улучшения нужно '+money(cost));
+ G.cash-=cost;G.spent+=cost;G.upgrade++;$('rentNotice').textContent='Квартира улучшена: уровень '+G.upgrade+'.';render();
+}
+function buyApartment(){
+ if(!G)return;
+ const offers=[{name:'Уютная квартира',cost:4500,rent:750},{name:'Просторная квартира',cost:8500,rent:1100},{name:'Премиум-квартира',cost:14000,rent:1650}];
+ const next=offers[Math.min(G.apartment,offers.length-1)];
+ if(G.apartment>=3)return alert('У тебя уже самая дорогая квартира.');
+ if(G.cash<next.cost)return alert('Покупка стоит '+money(next.cost)+'. Не хватает денег.');
+ if(!confirm('Купить «'+next.name+'» за '+money(next.cost)+'? Новая аренда: '+money(next.rent)+' в день.'))return;
+ G.cash-=next.cost;G.spent+=next.cost;G.apartment++;G.rent=next.rent;G.upgrade=0;G.missedRent=0;
+ G.rentPaidForDay=false;
+ $('rentNotice').textContent='Поздравляем с покупкой: '+next.name+'!';updateApartmentUI();render();
+}
+function loseForRent(){
+ $('resultTitle').textContent='🏚️ ВЫ ПРОИГРАЛИ — ВЫСЕЛЕНИЕ';
+ $('resultCash').textContent=money(G.cash+G.saved);$('resultQuests').textContent=G.done.length+' / '+L.quests.length;
+ $('resultEarned').textContent=money(G.earned);$('stars').textContent='';show('result');
+ if(scene3d){scene3d.cleanup?scene3d.cleanup():scene3d.renderer.dispose();scene3d=null}
+}
+
+function processEndOfDay(force = false) {
+  if(!force && dayClockState && dayClockState.minutes < DAY_END_MINUTES){
+    alert('День ещё не закончился! Ложиться спать можно только после 24:00 игрового времени.');
+    return;
+  }
+
+  let save=+$('save').value;G.saved+=save;G.cash-=save;G.dailyEarned=0;
+  if(G.rentPaidForDay){G.rentPaidForDay=false;G.missedRent=0}
+  else if(G.cash>=G.rent){G.cash-=G.rent;G.spent+=G.rent;G.missedRent=0;$('rentNotice').textContent='Аренда за день оплачена автоматически.'}
+  else{G.missedRent++;$('rentNotice').textContent='Аренда не оплачена! Пропуск '+G.missedRent+' из 3.';if(G.missedRent>=3){updateApartmentUI();loseForRent();return}}
+  if(Math.random()<0.07){const increase=Math.max(50,Math.round(G.rent*0.10/50)*50);G.rent+=increase;$('rentNotice').textContent='📬 Редкое событие: хозяин квартиры повысил аренду на '+money(increase)+'. Новая стоимость: '+money(G.rent)+' в день.';}
+  G.day++;G.fatigue=Math.max(0,G.fatigue-12);G.hunger=Math.min(100,G.hunger+8);$('save').value=0;updateApartmentUI();
+  
+  if(G.day>L.days||G.done.length===L.quests.length){
+    finishLevel();
+  }else{
+    addDailyMail();
+    resetDayClock();
+    render();
+    maybeNeighborVisit();
+  }
+}
+
+$('finishDay').onclick = () => processEndOfDay(false);
+
+async function finishLevel(){
+  let score=G.cash+G.saved,stars=score>=L.goal?3:score>=L.goal*.7?2:score>0?1:0;
+  $('resultTitle').textContent=score>=L.goal?'🎉 Босс доволен! Этап пройден':'Рабочий этап завершён';
+  $('resultCash').textContent=money(score);$('resultQuests').textContent=G.done.length+' / '+L.quests.length;
+  $('resultEarned').textContent=money(G.earned);$('stars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  show('result');
+  if(scene3d){scene3d.cleanup?scene3d.cleanup():scene3d.renderer.dispose();scene3d=null}
+  console.log('Результат игры:', {name:player, level_id:L.id, score:Math.round(score), stars});
+}
+$('again').onclick=()=>startLevel(L.id);
+if(localStorage.getItem('programmer_name'))$('player').value=localStorage.getItem('programmer_name');show('mainMenu')
+
+const dayClockState = { minutes: 7 * 60 };
+const DAY_START_MINUTES = 7 * 60;
+const DAY_END_MINUTES = 24 * 60;
+
+const DAY_CLOCK_PHASES = [
+  { until: 9 * 60, label: 'Раннее утро' },
+  { until: 12 * 60, label: 'Рабочее утро' },
+  { until: 15 * 60, label: 'День' },
+  { until: 18 * 60, label: 'Послеобеденное время' },
+  { until: 21 * 60, label: 'Вечер' },
+  { until: 24 * 60, label: 'Поздний вечер' }
+];
+
+function dayClockPhaseLabel(minutes) {
+  const phase = DAY_CLOCK_PHASES.find(p => minutes < p.until) || DAY_CLOCK_PHASES[DAY_CLOCK_PHASES.length - 1];
+  return phase.label;
+}
+
+function formatGameTime(minutes) {
+  const m = Math.floor(minutes) % (24 * 60);
+  const hh = String(Math.floor(m / 60)).padStart(2, '0');
+  const mm = String(m % 60).padStart(2, '0');
+  return `${hh}:${mm}`;
+}
+
+function renderDayClock() {
+  const hud = $('dayClockHud');
+  if (!hud || !G) return;
+  const activeDuration = DAY_END_MINUTES - DAY_START_MINUTES;
+  const activeElapsed = Math.max(0, Math.min(activeDuration, dayClockState.minutes - DAY_START_MINUTES));
+  const progressPercent = (activeElapsed / activeDuration) * 100;
+  $('dayClockTime').textContent = formatGameTime(dayClockState.minutes);
+  $('dayClockPhase').textContent = dayClockPhaseLabel(dayClockState.minutes);
+  $('dayClockBar').style.width = Math.min(100, progressPercent) + '%';
+  const sleepBtn = $('sleepToNextDay');
+  if (sleepBtn) {
+    const isNight = dayClockState.minutes >= DAY_END_MINUTES;
+    const canSleep = G && G.day <= L.days && isNight;
+    sleepBtn.disabled = !canSleep;
+    if (G && G.day <= L.days) {
+      if (!isNight) {
+        sleepBtn.textContent = '🌙 Закончить день (после 24:00)';
+      } else {
+        sleepBtn.textContent = '🌙 Закончить день (лечь спать)';
+      }
+    }
+  }
+}
+
+function advanceDayClock(dtSeconds) {
+  if (!G || G.day > L.days) return;
+  if (dayClockState.minutes < DAY_END_MINUTES) {
+    dayClockState.minutes = Math.min(DAY_END_MINUTES, dayClockState.minutes + dtSeconds / 1.5);
+    renderDayClock();
+  }
+}
+
+function resetDayClock() {
+  dayClockState.minutes = DAY_START_MINUTES;
+  renderDayClock();
+}
+
+function sleepToNextDay() {
+  if (!G) return;
+  if (G.day > L.days) {
+    alert('Этот этап уже завершён.');
+    return;
+  }
+  if (dayClockState.minutes < DAY_END_MINUTES) {
+    alert('Ещё слишком рано! Ложиться спать можно только после 24:00 игрового времени.');
+    return;
+  }
+  processEndOfDay(false);
+  G.fatigue = Math.max(0, G.fatigue - 10);
+  G.hunger = Math.min(100, G.hunger + 4);
+  resetDayClock();
+  render();
+}
+
+$('sleepToNextDay').onclick = sleepToNextDay;
+</script></body></html>
